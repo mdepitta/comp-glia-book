@@ -1,0 +1,1245 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[titletoc,toc,title]{appendix}
+\usepackage{fullpage} % changes the margin
+
+%% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+
+% Use Unicode characters when possible
+\usepackage[utf8]{inputenc}
+
+% Specially typed fonts
+\usepackage{dsfont}
+\usepackage{upgreek}
+
+% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
+
+% fixltx2e package for \textsubscript
+\usepackage{fixltx2e}
+
+% cite package, to clean up citations in the main text. Do not remove.
+\usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+% rotating package for sideways tables
+\usepackage{rotating}
+\usepackage{xspace, nicefrac}
+
+% Package for typesetting of source
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{LightGray}{gray}{0.95}
+
+% Package for physical units
+\usepackage{siunitx}
+\DeclareSIUnit\Molar{\textsc{m}}
+
+% Graphics handling
+\usepackage{graphicx}
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=justified,singlelinecheck=off]{caption}
+% Package for subfigures
+\usepackage[position=top,labelformat=simple]{subcaption}
+\renewcommand*{\thesubfigure}{\Alph{subfigure}} % Upper case letters for subfigures
+
+% Subfigure captions
+\usepackage[export]{adjustbox}
+
+% TikZ for amazing, painstaking schemes
+\usepackage{tikz}
+\usetikzlibrary{calc,backgrounds,fit,graphs,arrows,shapes,positioning,decorations.pathmorphing} 
+
+% Fancy lists
+\usepackage{enumitem}
+
+\usepackage[sort]{natbib}
+\allowdisplaybreaks
+
+% Tables
+\usepackage{tabularx}
+\usepackage{longtable}
+%----------------------------------------------------------------------------------------------------------------
+% \hline renew
+%----------------------------------------------------------------------------------------------------------------
+\let\oldhline\hline
+\renewcommand{\hline}{\oldhline\noalign{\vskip 0.5ex}}
+%----------------------------------------------------------------------------------------------------------------
+
+% Table caption on top
+\usepackage{floatrow}
+\floatsetup[table]{capposition=top}
+
+%%% Add line numbers for reviewers
+%\usepackage[left]{lineno}
+%\linenumbers
+
+% ---------------------------------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------------------------------
+% Macros
+%----------------------------------------------------------------------------------------------------------------
+\newcommand{\brian}{\emph{Brian~2}\xspace}
+\newcommand{\der}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+\newcommand{\rpar}[1]{\left( #1 \right)}
+\newcommand{\Hill}[3]{\ensuremath{\mathcal{H}_{#1}\left(#2, #3\right)}}
+\newcommand{\odm}[1]{\ensuremath{O\left(#1\right)}}
+\newcommand{\tave}[1]{\ensuremath{\langle#1\rangle}}
+\DeclareMathOperator{\sgn}{sgn}
+
+%----------------------------------------------------------------------------------------------------------------
+% Cross-references
+%----------------------------------------------------------------------------------------------------------------
+\newcommand*{\tabref}[1]{\tablename~\ref{#1}}
+\newcommand*{\figref}[1]{\figurename~\ref{#1}}
+\newcommand*{\secref}[1]{Section~\ref{#1}}
+\newcommand*{\appref}[1]{Appendix~\ref{#1}}
+\renewcommand*{\eqref}[1]{equation~\ref{#1}}
+\newcommand*{\eref}[1]{(\ref{#1})}
+
+%----------------------------------------------------------------------------------------------------------------
+% Colors
+%----------------------------------------------------------------------------------------------------------------
+\definecolor{Red}{RGB}{228,26,28}  % C0
+\definecolor{LightBlue}{RGB}{55,126,184}  % C1
+\definecolor{Green}{RGB}{77,175,74}  % C2
+\definecolor{Purple}{RGB}{152,78,163}  % C3
+\definecolor{Orange}{RGB}{255,127,0}  % C4
+\definecolor{Yellow}{RGB}{255,255,51}  % C5
+\definecolor{Magenta}{RGB}{227,119,194}
+
+%----------------------------------------------------------------------------------------------------------------
+%% Title and authors
+%----------------------------------------------------------------------------------------------------------------
+\title{Modeling neuron--glia interactions with the \brian simulator}
+\author{
+        Marcel Stimberg\\
+            Sorbonne Universités, UPMC Univ Paris 06,\\
+            INSERM, CNRS, Institut de la Vision, Paris, France
+        \and
+        Dan F. M. Goodman\\
+            Department of Electrical and Electronic Engineering,\\
+            Imperial College London, London, United Kingdom
+        \and
+        Romain Brette\\
+            Sorbonne Universités, UPMC Univ Paris 06,\\
+            INSERM, CNRS, Institut de la Vision, Paris, France
+        \and
+        Maurizio De Pitt\`a\\
+            Depts. of Statistics and Neurobiology, The University of Chicago, Chicago, USA\\
+            Team BEAGLE, INRIA Rh\^{o}ne-Alpes, Villeurbanne, France       
+        }
+\date{\today}
+
+%----------------------------------------------------------------------------------------------------------------
+%% Bibliography settings
+%----------------------------------------------------------------------------------------------------------------
+\bibliographystyle{apalike}
+
+%----------------------------------------------------------------------------------------------------------------
+%% Document
+%----------------------------------------------------------------------------------------------------------------
+\begin{document}
+% Set listing style
+\lstset{language=Python, basicstyle=\small\ttfamily,
+              showstringspaces=false,
+              columns=fixed,
+              commentstyle=\color{Blue}\itshape\sffamily,
+              stringstyle=\color{OliveGreen},
+              morecomment=[s][stringstyle]{'''}{'''},  % format triple quoted strings as strings not as comments (docstrings)
+              backgroundcolor=\color{LightGray}}
+% Title + authors + version
+\maketitle
+% Body
+\section{Introduction}
+\subsection{Challenges in modeling of neuron--glia interactions}
+Computational modeling is an important part of modern neuroscience research \citep{Abbott_Neuron2008}. Neuronal models are available at many scales of investigation \citep{Dayan2001}: highly detailed multi-compartmental models describe the ion channels that establish the membrane potential and are responsible for action potential generation;
+simplified models, such as the integrate-and-fire neuron, regard action potentials as stereotypical events that are not described any further;
+and even more abstract models, such as Poisson neurons, only aim to capture the statistics of timing of action potentials rather than the shape or the biophysical mechanism of their generation.
+Such neuronal models can be readily simulated by a wide range of simulator packages for neuronal simulations \citep{Brette2007}, given that they are well-established and fairly standardized and thus are often provided by libraries built in these packages \citep[but see][]{Brette2012}.
+
+The same does not hold true for glial cell models \citep{DePitta_FCN13}. Despite compelling emerging evidence that glial cells could crucially regulate neural network activity \citep{Poskanzer_PNAS2016} and plasticity \citep{DePitta_Neurosci2015}, the vast majority of available neuronal models completely ignores the possible contribution of glia to neuronal physiology.
+Arguably, one of the reasons for this is that standard glia models are yet to be defined (\textcolor{red}{Chapter~1}), and thus simulator packages generally do not provide models of glial cells as part of their libraries.
+
+Although several popular neural simulators, such as NEURON \citep{Carnevale2006} or~NEST \citep{Gewaltig2007}, allow for extending their built-in library with user-defined glia models, this is generally not straightforward as it requires specific programming skills in a low-level language.
+Additionally, it usually involves an additional step of compilation and integration into the simulator every time the library is changed.
+This may ultimately discourage research that involves adding or modifying a glia model in a simulator, since iterative improvements are very inconvenient.
+As a consequence, computational studies that model glia either use a standard simulator such as NEURON but are limited in usability by the specific choice made for the glial model which cannot easily be modified by the user \citep{Aleksin_PCB2017}, or use custom code written in a general-purpose language such as MATLAB \citep{Wade_PLoSOne2011,DePitta_PCB11,Naeem_TNNLS2015} or lower-level languages such as C/C++ \citep{Volman_NC2007,NadkarniLevine2008}, in turn suffering from reduced accessibility to researchers with less technical experience.
+Overall, both scenarios raise potential issues in terms of portability, reproducibility and correctness of the code which are detrimental to model sharing and dissemination \citep{Cannon2007}.
+
+In contrast to most other simulators, the \emph{Brian} simulator \citep{Goodman2008,Goodman2009} was created with the aim to ease definition and portability of new models. In its latest version, \brian, this flexibility is extended to and combined with a generic approach for code generation that allows high-performance simulations \citep{Goodman2010, Stimberg2014}. This chapter explores these aspects, elucidating several advantages that should encourage researchers to use the \brian simulator to model glia in their work.
+
+\subsection{The Brian simulator}
+The \emph{Brian} simulator, created in 2008, is provided as a package for the Python programming language.
+All aspects of the model can be defined in a single Python script and are made explicit: rather than relying on predefined ``black-box'' models, models can be readily and flexibly described in mathematical terms by differential equations for continuous dynamics and a series of update statements for discrete events \citep{Brette2012,Stimberg2014}.
+This allows high code readability and flexibility as the user can freely change details of the model's equations which are written in mathematical notation with only very little \emph{Brian}-specific syntax.
+Furthermore, because the description of the model is explicit, all model details are unambiguously defined and appear in the main simulation description file.
+
+In line with the principle of readability and simplicity, \brian also comes with a system for the use of physical units. For example, it allows the user to directly specify a parameter in \si{\micro \Molar/s} units, by multiplying its value by \lstinline|umolar/second|.
+\brian also checks the consistency of all specified units across all assignments, statements, and equations and issues an error if there is a mismatch.
+
+Brian is open source and freely distributed under the GPL-compatible CeCILL~v2.1 license. For more information see \url{http://briansimulator.org} and \url{http://brian2.readthedocs.io}.
+
+\subsection{Modeling strategy}
+In the following, we focus on astrocytes and their interactions with synapses, but the modeling arguments and code design principles that we present are of general validity and could be used to also model other glial cells, such as microglia, oligodendrocytes or reactive astrocytes.
+Computational modeling of neuron--astrocyte signaling has previously been tackled both on the microscopic (molecular) level and the macroscopic (network) scale.
+On the microscopic level, the MCell simulator \citep{Stiles2001} has been used to investigate specific astrocytic signals impinging on synaptic elements \citep{Beenhakker_JN2010}.
+On the network level, the NEURON-based ARACHNE platform to study astrocyte functions in neural network physiology is available, but only considers astrocyte-mediated `volume-transmitted' extracellular signaling \citep{Savtchenko_PTRSB2014,Aleksin_PCB2017}.
+
+In the following modeling section we pursue instead a mixed strategy, considering models of astrocytes and of their interactions with synapses that lump both microscopic and macroscopic aspects.
+Based on this approach, we show how \brian can be used to create a network of neurons and synapses connected with a network of astrocytes that sense synaptic activity and modulate it in turn, starting from a molecular-level description of astrocytic signaling.
+We do so by first introducing a simple network model of only neurons and synapses (Sections~\ref{sec:neurons} and~\ref{sec:synapses}).
+Then, we present modeling of individual astrocytes that respond to synaptic activation by intracellular calcium signaling (\secref{sec:astrocyte}) and release gliotransmitters that could modulate synaptic transmission (Sections~\ref{sec:gliot-open} and~\ref{sec:gliot-closed}).
+Next, we discuss signaling between astrocytes in a network (\secref{sec:astro-network}) and finally we combine all these aspects in a recurrent network of interacting neurons, synapses, and astrocytes (\secref{sec:ng-network}).
+
+For the sake of brevity, we only show excerpts of the \brian code describing the models used in the presented simulations.
+The full code (see also \appref{apx:example-files}), including the code for recording and analyzing the results, as well as plotting the figures of this chapter can be downloaded from \url{https://github.com/mdepitta/comp-glia-book}. It is also part of the \brian documentation at \url{http://brian2.readthedocs.io} and available in ModelDB \citep{McDougal2017} at \url{http://modeldb.yale.edu/233393}.
+
+\section{Modeling of neuron--glia network interactions with \brian}
+\subsection{General approach}
+In \brian, models of neurons, synapses, and astrocytes are defined by a set of state variables, e.g. the neuron's membrane potential, the synaptic conductances, or the astrocyte's intracellular calcium, and a description of their evolution over time.
+This description takes the form of ordinary differential equations (ODEs) for the continuous temporal dynamics between ``events'', e.g. the membrane potential, postsynaptic conductances or astrocytic intracellular calcium concentration between action potentials.
+Discontinuities in the dynamics of state variables triggered by events such as the crossing of the firing threshold by a neuron's membrane potential, or the arrival of an action potential at a presynaptic terminal, are described by a set of statements that update these variables.
+
+Groups of elements that share the same description of their dynamics are represented by a single object.
+Thus, for example, groups of neurons, synapses, and astrocytes would each be represented by an object.
+However, these groups can be heterogeneous.
+For example, neurons or astrocytes in the same group can be stimulated by different synapses, or synapses can be characterized by different cellular parameters.
+State variables are updated according to the dynamics specified by the user.
+If the evolution of a state variable is of interest for the purpose of analysis or visualization, the user can record it by a ``monitor'' object either for all elements of a group or for a subset thereof.
+
+Once all elements of a model have been specified, including initial values, constants, and model parameters, the simulation can be launched.
+This is done by calling the \lstinline|run| function with a parameter that specifies the desired total simulated time in biological time units (e.g. \lstinline|second|).
+Upon completion of the \lstinline|run| call, the user can analyze the simulation results either by accessing the final values of state variables (for example to analyze the synaptic weight distribution at the end of a simulated plasticity-inducing protocol), or by accessing values stored in a monitor.
+All these values are readily accessible as NumPy arrays \citep{Numpy2011} and can be stored, analyzed and displayed by standard tools.
+Since simulation results are annotated with physical units, plotting them in a specific scale can easily be done by dividing them by those units.
+For example, when the state variable \lstinline|v| (``membrane potential'') of a group of \lstinline|neurons| has been recorded by \lstinline|monitor=StateMonitor(neurons, 'v')|, the first neuron's membrane potential may be shown in \lstinline|mV| as function of time in \lstinline|ms| using Matplotlib's \citep{Matplotlib2007} \lstinline|plot| function by \lstinline|plot(monitor.t/ms, monitor[0].v/mV)|.
+
+\subsection{Neurons}\label{sec:neurons}
+In \brian, neurons are represented by objects of the \lstinline|NeuronGroup| class (\figref{Fig:COBA}A). Each \lstinline|NeuronGroup| object models the activity of a group of neurons with identical dynamics, i.e. neurons whose state variables evolve according to the same differential equations. Consider, for example, the simple model of an integrate-and-fire neuron with conductance-based excitatory ($g_e$) and inhibitory synapses ($g_i$) and a constant input current $I_{ex}$ \citep{Dayan2001}, whose equations are
+\begin{align}
+\der{v}{t} &= \left(g_l \left(E_l - v\right) + g_e \left(E_e - v\right) + g_i \left(E_i -v \right) + I_{ex} \right) \frac{1}{C_m} \label{eq:neuron-v}\\
+\der{g_e}{t} &= -\frac{g_e}{\tau_e}\\
+\der{g_i}{t} &= -\frac{g_i}{\tau_i} \label{eq:neuron-gi}
+\end{align}
+In \brian we closely follow the above mathematical notation, defining the neuron model by a multi-line string:
+\lstinputlisting{code/example_1_COBA_1.py}
+Each line of the \lstinline|neuron_eqs| string defines a state variable of the model (\lstinline|v|, \lstinline|g_e| or \lstinline|g_i|) and consists of two parts separated by a colon and an optional comment after the \verb|#| sign.
+The part before the colon specifies the ODE for the dynamics of the state variable.
+The part that follows the colon specifies the physical units of this state variable and (optionally) additional information about it.
+In the case of the neuron's membrane potential \lstinline|v| for example, the additional specification \lstinline|(unless refractory)| states that the differential equation for \lstinline|v| is not to be integrated during the refractory period following the firing of an action potential by the neuron, but instead should stay at the post-spike reset value.
+It should be noted that the stated physical unit after the colon has to be a SI base unit, i.e. a unit such as \lstinline|volt|, \lstinline|second|, or \lstinline|siemens|, and not a scaled unit such as \lstinline|mV|, \lstinline|ms|, or \lstinline|nS|\footnote{Note that \lstinline|molar| is \emph{not} a SI base unit, because it is defined as $\si{\Molar} = \si{\mole\per\liter}$, i.e. referring to \si{\liter} instead of the SI base unit \si{\cubic\meter}. Since $\SI{1}{\mole\per\liter} = \SI{1000}{\mole\per\cubic\meter}$, the base unit to use is $\si{\milli\Molar}$ (\lstinline|mmolar|).}.
+This is to emphasize that internally all variable values are stored as floating point numbers in the base unit.
+While users do not have to care about this most of the time -- they set values using the unit system in whatever scale they prefer and receive values with the scaling information back -- this become relevant when the unit information is stripped away, e.g. when quantities are passed through library functions that are not unit-aware.
+
+The implementation of the neuron model in equations~\ref{eq:neuron-v}--\ref{eq:neuron-gi} refers to model parameters, namely the leak, excitatory, and inhibitory reversal potentials $E_l$, $E_e$ and $E_i$; the constant input current $I_{ex}$; the membrane capacitance $C_m$; and the time constants of excitatory and inhibitory synaptic inputs, $\tau_e$ and $\tau_i$.
+Here, these parameters are taken to be equal for all simulated neurons and can be defined by standard Python variables (one per parameter) in the script that runs the simulation\footnote{\brian also offers an alternative system to specify constants via a \lstinline|namespace| argument that receives a Python dictionary mapping constant names to their values. Refer to \brian's online documentation for details at \href{http://brian2.readthedocs.org}{http://brian2.readthedocs.io}.}.
+Alternatively, neuron-specific parameters can be defined by appending lines in the form of \lstinline|<name> : <unit> (constant)| to the model equations.
+
+In the scenario of a network of $N_e$ excitatory and $N_i$ inhibitory neurons (\figref{Fig:COBA}B), we can then create a \lstinline|NeuronGroup| object of $N_e + N_i$ neurons based on the above description, and further define the condition for firing of an action potential (\lstinline|threshold|), as well as the statement(s) (if any) to be executed after an action potential (\lstinline|reset|), and finally the refractory period (\lstinline|refractory|), which in this case we assume to be a constant value $\tau_r$ (defined along with the other model parameters):
+\lstinputlisting{code/example_1_COBA_2.py}
+%%
+%%
+The model's state variables are exposed as attributes of the \lstinline|neurons| object so that, for example, the membrane potential can be accessed by \lstinline|neurons.v|, and their initial value can be assigned in the same way.
+Although all neurons in our example are described by the same equations, the initial values of their variables can be different. Here, we set these latter to random values using string expressions that are executed via the code generation facilities provided by \brian \citep{Stimberg2014} and refer to uniformly distributed random numbers between 0 and 1 using the predefined function \lstinline|rand()|.
+Finally, we use Python's slicing syntax to separate the group into subgroups of excitatory and inhibitory neurons:
+\lstinputlisting{code/example_1_COBA_3.py}
+
+\subsection{Synapses} \label{sec:synapses}
+In most models of neuronal systems, neurons are connected by chemical synapses that are activated by action potentials fired by presynaptic neurons.
+In the following, we use the phenomenological description of neocortical synapses exhibiting short-term plasticity originally introduced by Tsodyks and Markram \citep{Tsodyks1998,Tsodyks_LesHouches2005}.
+According to this description, synaptic release is modeled by the product of two variables $u_S$ and $x_S$, where $u_S$ loosely relates to the neurotransmitter resources ``docked'' for release by the Ca$^{2+}$ sensor for synaptic exocytosis of neurotransmitter, and $x_S$ represents the fraction of total neurotransmitter available for release \citep{FuhrmannTsodyks_JNeurophys2002,Tsodyks_LesHouches2005}.
+Between action potentials, $u_S$ decays to~0 at rate $\Omega_f$ while $x_S$ recovers to~1 at rate $\Omega_d$, i.e.
+\begin{align}
+\der{u_S}{t} &= -\Omega_f u_S \label{eq:synapse-us}\\
+\der{x_S}{t} &= \Omega_d (1 - x_S) \label{eq:synapse-xs}
+\end{align}
+The arrival of an action potential triggers calcium influx at the presynaptic terminal, which moves a fraction $U_0$ of the neurotransmitter resources not scheduled for release ($1-u_S$)  to the readily-releasable ``docked'' state ($u_S$).
+Subsequently, a fraction $u_S$ of the available neurotransmitter resources is released as $r_S$ while $x_S$ is reduced by the same amount, that is
+\begin{align}
+u_S &\leftarrow u_S + U_0 \left(1 - u_S\right)\label{eq:u_S}\\
+r_S &\leftarrow u_S x_S \label{eq:rs}\\
+x_S &\leftarrow x_S - r_S
+\end{align}
+
+\begin{figure}[!p]
+\centering
+\begin{subfigure}[t]{0.3\textwidth}	
+\caption{}
+\vspace{1.1cm}
+%----------------------------------------------------------------------------------------------------------------
+% Brian classes
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [rounded corners=5pt,
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{black}] (neu) {NeuronGroup};
+	\node [synapsegroup={10mm}{black},below=9.5mm of neu.center] (syn) {Synapses};
+	\begin{scope}[on background layer]
+		\node [neurongroup={35mm}{white},fit=(neu) (syn),
+		       label={[shift={(0ex,-3.5ex)},font=\sffamily]north:{\large Brian classes}}] (classes) {};
+	\end{scope}	
+\end{tikzpicture}
+\end{subfigure}
+%%
+%%
+\begin{subfigure}[t]{0.6\linewidth}
+\caption{}
+%----------------------------------------------------------------------------------------------------------------
+% Simple neuronal network (COBA)
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [>=stealth, black!50, text=black, thick,rounded corners=5pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{Red}] (exc) {exc\_neurons};
+	\node [neurongroup={10mm}{LightBlue},below=8.5mm of exc.center] (inh) {inh\_neurons};
+	\begin{scope}[on background layer]
+		\node [neurongroup={32mm}{gray},fit=(exc) (inh),
+		       label={[shift={(0ex,-3ex)}]north:{\texttt{neurons}}}] (neurons) {};
+	\end{scope}
+	%% Reference node for external input
+	\node [draw=none,left=1.7cm of neurons.west] (iex) {};
+	
+	%% Synapses
+	\node [synapsegroup={8mm}{Red},right = 1cm of exc.east] (exc_syn) {exc\_synapses};
+	\node [synapsegroup={8mm}{LightBlue},right = 1cm of inh.east] (inh_syn) {inh\_synapses};
+	
+	%% Simple paths
+	\draw[->] (iex) -- (neurons.west)
+			  node[above,align=center,midway] {\texttt{I\_ex}}
+	          node[below,align=left,midway,font=\sffamily\small] {external\\stimulation};	
+	\draw[->] (exc) -- (exc_syn)
+			  node[above=-0.5ex,align=center,midway,font=\sffamily\small] {spike} node[below=-0.5ex,align=center,midway,font=\sffamily\small] {event};
+	\draw[->] (inh) -- (inh_syn)
+	          node[above=-0.5ex,align=center,midway,font=\sffamily\small] {spike} node[below=-0.5ex,align=center,midway,font=\sffamily\small] {event};
+	%% Complex paths
+	\draw[->] let \p1=(neurons.north east) in (exc_syn.north) |- (\x1,\y1-3mm)
+			  node[above=2.5ex,align=left,near end,font=\sffamily\small] {increase\\postsynaptic\\conductance}
+	          node[above,align=center,near end] {\texttt{+w\_e*r\_S}};
+	\draw[->] let \p1=(neurons.south east) in (inh_syn.south) |- (\x1,\y1+3mm)
+	          node[below,align=center,near end,font=\sffamily\small] {\texttt{+w\_i*r\_S}}; 
+\end{tikzpicture}
+\end{subfigure}\\[1ex]
+%%
+\begin{subfigure}[b]{.5\linewidth}
+	\caption{}
+	\includegraphics{figures/results/example_1_COBA_Figure_1.eps}
+\end{subfigure}%
+\begin{subfigure}[b]{.5\linewidth}
+	\caption{}
+	\includegraphics{figures/results/example_1_COBA_Figure_2.eps}
+\end{subfigure}
+\caption{Modeling of neurons and synapses.
+\textbf{A}~In \brian neurons and synapses are modeled by two distinct classes, \lstinline|NeuronGroup| and \lstinline|Synapses|.
+As a convention, in all the schemes presented in this chapter, \lstinline|NeuronGroup| objects are shown as \textit{rectangles}, whereas \lstinline|Synapses| objects are displayed as \textit{ellipses}.
+\textbf{B}~In a classic balanced network model \citep{Brunel2000}, neurons are separated into excitatory (\lstinline|exc_neurons|) and inhibitory ones (\lstinline|inh_neurons|), being recurrently connected both by excitatory (\lstinline|exc_synapses|) and by inhibitory synapses (\lstinline|inh_synapses|).
+\textbf{C}~Raster plot of the firing activity of 25\% out of all excitatory (\textit{red}) and inhibitory neurons (\textit{blue}) of the network in panel~\textbf{B} and associated network-averaged firing rate (computed in \SI{1}{\milli s} time bins).
+%TODO: Are the flucuations in excitatory conductances "large"?
+\textbf{D}~Asynchronous network activity coexists with large fluctuations in postsynaptic excitatory (\textit{red traces}) and inhibitory conductances (\textit{blue traces}) and relatively sporadic firing by individual neurons (\textit{green dotted line}:~firing threshold, \lstinline|V_th|).
+Timing of incoming presynaptic action potentials also shapes the dynamics of synaptic transmission by short-term synaptic plasticity.
+Synaptic release of neurotransmitter ($r_S$) is not fixed, but rather varies at each action potential, depending on the history of synaptic activity reflected in the values of the synaptic state variables $u_S$ (\textit{orange}) and $x_S$ (\textit{purple}) at the action potential instant.
+Postsynaptic conductances and membrane potential are shown for neuron~50 from the raster plot. Displayed synaptic variables are from one excitatory synapse made by this neuron. Model parameters as in \tabref{Tab:neu-syn} and in addition, $I_{ex} = \SI{150}{\pico A}$.}
+\label{Fig:COBA}
+\end{figure}
+
+In \brian, connections between neurons are modeled by objects of the \lstinline|Synapses| class (\figref{Fig:COBA}A). Analogously to neurons of a \lstinline|NeuronGroup|, we define each synapse's state variables $x_S$ and $u_S$ by a multi-line string:
+\lstinputlisting{code/example_1_COBA_4.py}
+%%
+%%
+Synaptic equations are specified to be \lstinline|(event-driven)| because we only need values of synaptic variables when an action potential arrives presynaptically.
+This tells \brian to update synaptic variables only at new incoming action potentials using the analytical solution of their differential equations and the time interval since the last update.
+This is possible because the synapse's equations~\ref{eq:synapse-us} and~\ref{eq:synapse-xs} are linear so that their analytical solution is known, allowing to simulate a large number of synapses efficiently.
+We also note that in our model implementation, synaptic equations do not include postsynaptic conductances as they were previously defined in the neuronal equations.
+This allows storing and updating synaptic conductances only once per neuron rather than once per synapse and is mathematically equivalent due to the assumed linear summation of postsynaptic conductances.
+
+Discrete changes of synaptic variables on arrival of an action potential can be implemented by a series of statements in a multi-line string such as
+\lstinputlisting{code/example_1_COBA_5.py}
+%%
+%%
+In addition, excitatory (inhibitory) synapses will increase the excitatory (inhibitory) conductance in the postsynaptic cell whenever a presynaptic action potential arrives (\figref{Fig:COBA}B), i.e.
+\begin{align}
+	g_e \leftarrow g_e + w_e r_S\\
+	g_i \leftarrow g_i + w_i r_S
+\end{align}
+%%
+%%
+This is done by extending \lstinline|synapses_action| by an update assignment `\lstinline|+=|' of the respective postsynaptic conductance, identified by the \lstinline|post| suffix, i.e. \lstinline|g_e_post| and \lstinline|g_i_post|.
+Combining all of this together, we create two types of synapses, respectively originating from excitatory and inhibitory neurons, i.e.
+\lstinputlisting{code/example_1_COBA_6.py}
+%%
+%%
+where the \lstinline|on_pre| keyword argument denotes that the series of statements should be executed on arrival of a presynaptic action potential.
+
+It must be stressed that the above code only defines the synaptic model in \brian, but not the connectivity. To create synapses, we have to specify what source--target neuron pairs should be connected together out of all the possible pairs specified by the first two input arguments in the \lstinline|Synapses| initializer.
+One way to do this is by specifying a logical condition on neuronal connectivity and, optionally, a connection probability, provided as arguments to the \lstinline|connect| method of the \lstinline|Synapses| object \citep{Stimberg2014}.
+Here, we want to connect all possible neuron pairs with a probability of 20\% for each pair for inhibitory neurons, and 5\% for excitatory neurons.
+Thus we do not set any condition to be fulfilled and only specify a probability for all possible connection pairs:
+\lstinputlisting{code/example_1_COBA_7.py}
+%%
+%%
+For parameters values such as those in \tabref{Tab:neu-syn}, simulation of the resulting network reveals the emergence of characteristic asynchronous neuronal firing activity \citep{Brunel2000}, as evidenced in \figref{Fig:COBA}C by the \textit{top left} raster plot of the firing activity of 25\% of the neurons in the network.
+The network-averaged firing rate associated with this raster plot indeed presents noisy dynamics (\figref{Fig:COBA}C, \textit{bottom panel}) that coexists with large fluctuations of postsynaptic excitatory (\textit{red traces}) and inhibitory conductances (\textit{blue traces}) and sporadic firing of individual neurons (\figref{Fig:COBA}D, \textit{top panels}).
+Consideration of a sample excitatory synapse of the network allows appreciating how synaptic dynamics is modulated by short-term plasticity (\figref{Fig:COBA}D, \textit{bottom panels}).
+The state variables $u_S$ and $x_S$ associated with the sample synapse evolve in a characteristic exponential fashion intermingled with discontinuities triggered by action potentials arriving at the presynaptic terminal.
+The resulting values define the amount of synaptic neurotransmitter released by the synapse ($r_S$), setting how effectively each action potential is transmitted to the postsynaptic neuron.
+
+\subsection{Astrocytes}\label{sec:astrocyte}
+Intracellular Ca$^{2+}$ concentration is unanimously regarded as a prominent readout signal of astrocyte activity \citep{Zorec_ASN2012}.
+Although astrocytic intracellular Ca$^{2+}$ can be regulated by multiple mechanisms, Ca$^{2+}$-induced Ca$^{2+}$ release (CICR) from the astrocyte's endoplasmic reticulum (ER) appears to be one of the main mechanisms to regularly occur in the healthy brain \citep{Nimmerjahn_JP2009}.
+Recall from \textcolor{red}{Chapter~5} that astrocytic CICR is triggered by the intracellular second messenger inositol 1,4,5-trisphosphate (IP$_3$), which is produced upon astrocyte activation, and can be described, in one of its simplest formulation \citep{FalckeRev2004,DePitta_PRE2008}, by two ordinary differential equations in the Hodgkin-Huxley form \citep{LiRinzel1994}.
+The first equation is a mass balance for Ca$^{2+}$ ($C$) in terms of three fluxes $J_r,\,J_l,\,J_p$ which respectively denote CICR ($J_r$), Ca$^{2+}$ leak from the ER ($J_l$), and Ca$^{2+}$ uptake from the cytosol back to the~ER by Ca$^{2+}$/ATPase pumps ($J_p$).
+The second equation is for the gating variable ($h$) of de-inactivation of the channels that are responsible for CICR.
+These channels are inside the astrocyte, on the membrane that separates the ER Ca$^{2+}$-rich stores from the cell's cytosol, and are nonlinearly gated by both IP$_3$ ($I$) and Ca$^{2+}$.
+This leads to the well-known two-equation model originally introduced by \citet{LiRinzel1994}:
+\begin{align}
+\der{C}{t} &= J_r + J_l - J_p\\
+\der{h}{t} &= \frac{h_{\infty} - h}{\tau_h} \label{eq:astro-h}
+\end{align}
+where
+\begin{flalign*}
+J_{r}           &= \Omega_C \, m_\infty^3 h^3 \, (C_T-(1+\varrho_A)C) 
+& m_\infty      &= \Hill{1}{C}{d_{5}}\Hill{1}{I}{d_{1}}\\
+J_l             &= \Omega_L \, (C_T-(1+\varrho_A)C) 
+& h_{\infty}    &= d_{2}\frac{I + d_{1}}{d_2(I+d_1)+(I+d_3)C}\\
+J_{p}           &= O_P \Hill{2}{C}{K_P} 
+& \tau_h        &= \frac{I+d_3}{\Omega_{2}(I+d_1)+O_2(I+d_3)C}
+\end{flalign*}
+and $\mathcal{H}$ denotes the sigmoidal (Hill) function with $\Hill{n}{x}{K} = x^n / \left(x^n + K^n \right)$.
+
+For the sake of completeness, we also want to consider the stochastic opening and closing process of CICR-mediating channels which, as discussed in \textcolor{red}{Chapter~4}, can be mimicked by introducing a white noise term $\xi(t)$ into the equation governing the dynamics of the gating variable $h$, so that \eqref{eq:astro-h} becomes \citep{Shuai_BJ2002}:
+\begin{align}\der{h}{t} &= \frac{h_{\infty} - h}{\tau_h}\left(1+\xi(t)\sqrt{\tau_h} \right) \label{eq:astro-h-stoch}
+\end{align}
+
+Astrocytic~IP$_3$ is regulated by the complex~Ca$^{2+}$-modulated interplay of enzymatic production by phospholipase C$\beta$ ($J_\beta$) and C$\delta$ ($J_\delta$) and degradation by~IP$_3$ 3-kinase ($J_{3K}$) and inositol polyphosphatase 5-phosphatase ($J_{5P}$) \citep{DePitta_JOBP2009}.
+To reproduce experimental observations we consider two possible ways to trigger IP$_3$ production.
+One is by synaptic stimulation of astrocytic metabotropic receptors which starts phospholipase C$\upbeta$-mediated IP$_3$ production, modeled by making $J_\beta$ proportional to the activated fraction of these receptors (denoted hereafter by $\Gamma_A$).
+The other way is to include a further $J_{ex}$ term for constant IP$_3$ production by an exogenous source of stimulation such as, for example, IP$_3$ uncaging or intracellular diffusion from subcellular regions far from the CICR site \citep{Goldberg_etal_PCB2010}. In conclusion, IP$_3$ dynamics evolves according to the mass balance equation \citep{DePitta_JOBP2009}
+\begin{align}
+\der{I}{t}  &= J_\beta(\Gamma_A) + J_\delta - J_{3K} - J_{5P} + J_{ex} \label{eq:IP3-balance}
+\end{align}
+with
+\begin{flalign*}
+J_\beta(\Gamma_A) &= O_\beta \, \Gamma_A
+& J_\delta        &= O_\delta \, \frac{\kappa_\delta}{\kappa_\delta + I}\Hill{2}{C}{K_\delta}\\ 
+J_{3K}            &= O_{3K}\, \Hill{4}{C}{K_D}\Hill{1}{I}{K_3}
+& J_{5P}          &= \Omega_{5P}\, I\\
+J_{ex}            &= -\frac{F_{ex}}{2}\left(1+\tanh\left(\frac{|\Delta I_{bias}|-I_{\theta}}{\omega_{I}}\right)\right)\sgn(\Delta I_{bias})
+& \Delta I_{bias} &= I-I_{bias}
+\end{flalign*}
+where the fraction of activated astrocyte receptors $\Gamma_A$ depends on the neurotransmitter concentration in the periastrocytic space $Y_S$, and is given by the further equation \citep{Wallach_PCB2014} (\textcolor{red}{Chapter~5})
+\begin{align}
+\der{\Gamma_{A}}{t} &= O_{N}Y_S\,(1-\Gamma_{A}) - \Omega_{N}\rpar{1+\zeta \cdot \Hill{1}{C}{K_{KC}}}\,\Gamma_{A}
+\label{eq:astro-GammaA}
+\end{align}
+For a concise description of the meaning of all the model's parameters in the above equations, see \tabref{Tab:astrocytes} in the Appendix.
+
+Dynamics of the astrocyte's state variables $\Gamma_A,\,I,\,C,\,h$ are governed by ODEs akin to neuronal state variables, although on a longer time scale \citep{DePitta_CognProc2009}.
+Accordingly, they can be implemented by a \lstinline|NeuronGroup| object, exactly in the same way as neuronal variables.
+In this fashion, the following code exemplifies how we can create two astrocytes with dynamics governed by the above equations:
+\lstinputlisting{code/example_2_gchi_astrocyte_3.py}
+%%
+%%
+In the above \brian code, the multi-line \lstinline|astro_eqs| string defines our astrocyte model. The white noise term $\xi$ in \eqref{eq:astro-h-stoch} is implemented by the special symbol \lstinline|xi| (in units of $\si{\second}^{\nicefrac{-1}{2}}$) which is a predefined symbol in \brian.
+Also note that as a gating variable, $h$ has to be bound between~0 and~1, which is not guaranteed by the (approximated) nature of \eqref{eq:astro-h-stoch}.
+We therefore restrict \lstinline|h| to this interval by replacing it by \lstinline|h_clipped=clip(h,0,1)| on the right hand side of the~ODE for \lstinline|h| and in the formula of \lstinline|J_r| \citep{Shuai_BJ2002}.
+The noise term in \eqref{eq:astro-h-stoch} is multiplicative ($\xi(t)$ multiplies the gating variable $h$), we therefore have to use a numerical integration method that can handle multiplicative stochastic differential equations \citep[under the Stratonovich interpretation, cf.][]{KloedenPlaten1992}.
+We do this by specifying \lstinline|method='milstein'| as an argument to the \lstinline|NeuronGroup| initializer, leading to the use of the Milstein method for integration \citep[also see details on \texttt{example\_2\_gchi\_astrocyte.py} in \appref{apx:example-files}]{Milstein1975,KloedenPlaten1992}.
+
+The above model also defines three astrocyte-specific variables that are not defined by equations: \lstinline|I_bias|, \lstinline|Y_S|, and \lstinline|noise|.
+\lstinline|I_bias| and \lstinline|noise| are constant over time, but \lstinline|Y_S|, the concentration of synaptically-released neurotransmitter in the extracellular space around astrocytic receptors, i.e. $Y_S$ in \eqref{eq:astro-GammaA}, depends on synaptic activity that changes and therefore does not have the \lstinline|(constant)| flag.
+We will define how it gets linked to the synaptic activity further below.
+
+In this example, we want to compare two types of astrocytes, a deterministic and a stochastic one.
+To distinguish them, we have introduced the above-mentioned \lstinline|noise| constant which scales the strength of the noise term in \eqref{eq:astro-h-stoch}.
+We can therefore switch the noise term on or off, and we initialize it so that the first astrocyte is deterministic and the second is stochastic:
+\lstinputlisting{code/example_2_gchi_astrocyte_4.py}
+%%
+%%
+\begin{figure}
+\begin{subfigure}[!t]{\textwidth}
+\caption{}
+%----------------------------------------------------------------------------------------------------------------
+% Astrocyte activation by synaptic inputs
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [>=stealth, black!50, text=black, thick,rounded corners=3pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{Orange}] (input) {source\_neurons};
+	\node [neurongroup={10mm}{Orange},below=8.5mm of exc.center] (output) {target\_neurons};
+		
+	%% Synapses
+	\node [synapsegroup={8mm}{Orange}, below right= -3pt and 2.5cm of exc.south] (syn) {synapses};
+	
+	%% Extracellular space
+	\node [synapsegroup={8mm}{Purple},right = 0.5cm of syn.east] (ecs_s2a) {ecs\_syn\_to\_astro};
+
+	%% Astrocytes
+	\node [neurongroup={20mm}{Green},right = 7.2cm of syn.east] (astro) {astrocyte};
+
+	%% Paths
+	\draw[->] (input.east) -| (syn.north)
+	          node[above,align=center,near start,font=\sffamily\small] {spike event};
+	\draw[->] (syn.south) |- (output.east);
+	\draw[->,Purple,text=black] (syn.east) -- (ecs_s2a.west)
+	          node[above,align=center,midway] (ys) {\texttt{Y\_S}}
+	          node[below=1.1cm,align=left,anchor=west,font=\sffamily\small] at (ys.west) {neurotransmitter in the\\extrasynaptic space};
+	\draw[->,Purple,text=black] let \p1=(ecs_s2a.east), \p2=(astro.west) in (\p1) -- (\x2,\y1) 
+	          node[above,align=center,midway] {\texttt{Y\_S (summed)}};
+\end{tikzpicture}
+\end{subfigure}\\[2ex]
+\begin{subfigure}[t]{\textwidth}
+	\caption{}
+	\includegraphics{figures/results/example_2_gchi_astrocyte_Figure.eps}
+\end{subfigure}
+\caption{Modeling of synaptically-activated astrocytes.
+\textbf{A}~Illustration of the design principles to implement an astrocyte stimulated by synaptic inputs in \brian.
+The coupling between \lstinline|synapses| and the \lstinline|astrocyte| is achieved by an additional \lstinline|Synapses| object, labeled here as \lstinline|ecs_syn_to_astro|, which feeds into the astrocyte the sums of all individual synaptic inputs.
+\textbf{B}~Simulated dynamics of the state variables of two synaptically-activated astrocytes, one deterministic (\textit{red traces}) and one with noise on the gating variable $h$ according to \eqref{eq:astro-h-stoch} (\textit{blue traces}).
+The two astrocytes shared the same synaptic input which was repeatedly triggered by action potentials arriving at a rate of \SI{0.5}{\hertz}.
+Model parameters as documented in tables in \appref{apx:parameters} with the exception of $\rho_c=0.001$; $K_P=\SI{0.1}{\micro \Molar}$; $O_\beta=\SI{5}{\micro \Molar.s^{-1}}$; $O_\delta=\SI{0.2}{\micro \Molar.s^{-1}}$; $\Omega_{5P}=\SI{0.1}{s^{-1}}$; $K_D=\SI{0.5}{\micro \Molar}$; $F_{ex}=\SI{0.09}{\micro \Molar}$; $K_{\delta}=\SI{0.3}{\micro \Molar}$; and $I_{bias}=0$.}
+\label{Fig:astrocyte}
+\end{figure}
+%%
+%%
+
+To complete our model, we also need to specify how to calculate $Y_S$ in \eqref{eq:astro-GammaA}, as it is needed for the integration of the $\Gamma_A$ state variable.
+For now, we are only interested in the activity of the astrocyte and how it is stimulated by synaptic neurotransmitter.
+Therefore, we do not take into account short-term synaptic plasticity, and rather consider a trivial synaptic model stating that $Y_S$ increases by the same amount at every action potential and then decays exponentially \citep{Dayan2001}:
+\lstinputlisting{code/example_2_gchi_astrocyte_2.py}
+
+Finally we have to specify how the synapses stimulate the astrocytes.
+We do this by introducing a further \lstinline|Synapses| object that connects our synapses (which thus represent the ``presynaptic'' source in our object) to the two astrocytes (hence regarded as ``postsynaptic'' targets) in an all-to-all fashion, which can be concisely expressed by a call to \lstinline|connect()| without any arguments.
+Each astrocyte $i$ senses the sum of $Y_S$ across all $\mathcal{S}^i$ synapses that impinge on it. This can be mathematically expressed as $Y_S^{i} = \sum_{j \in \mathcal{S}^i} Y_S^{ij}$, and the implementation in \brian closely follows this formulation, using the flag \lstinline|(summed)| to denote the summing operation:
+\lstinputlisting{code/example_2_gchi_astrocyte_5.py}
+The above definition will update $Y_S$ for each astrocyte at every time step so that the integration of the $\Gamma_A$ has access to the current value at all times.
+
+\figref{Fig:astrocyte}A summarizes the design of the astrocyte model previously described, exemplifying its implementation by \brian classes originally introduced in \figref{Fig:COBA}A.
+A sample simulation of this model is presented in \figref{Fig:astrocyte}B, which shows the  dynamics of the state variables $\Gamma_A,\,I,\,C$ and $h$ for the deterministic (\textit{red traces}) vs. stochastic astrocyte (\textit{blue traces}) in response to synaptic stimulation by periodic action potentials at a rate of \SI{0.5}{\hertz}.
+It may be appreciated how noisy dynamics of the gating variable $h$ could dramatically alter $C$ and $I$ dynamics compared to the deterministic scenario.
+This could also impact the activated fraction of astrocytic metabotropic receptors ($\Gamma_A$) by the Ca$^{2+}$-dependent Hill nonlinearity in the right hand side of \eqref{eq:astro-GammaA}, although in this example, the effect may be deemed moderate for the specific choice of values for the model's parameters (\tabref{Tab:astrocytes}).
+
+\subsection{Gliotransmitter release and modulation of synaptic release}\label{sec:gliot-open}
+Astrocytes are not only stimulated by synapses but they can also modulate them by releasing neurotransmitters (also termed ``gliotransmitters'' for their glial origin; \citealp{BezziVolterraRev2001}) in a Ca$^{2+}$-dependent fashion.
+This process generally requires astrocytic intracellular Ca$^{2+}$ concentration to increase beyond a certain threshold, resulting in the release of a quantum of gliotransmitter into the periastrocytic space \citep{DePitta_FCN13}.
+In turn, released gliotransmitter molecules diffuse in the extracellular space, ultimately reaching extrasynaptic receptors found on synaptic elements belonging either to the very synapses that stimulate the astrocyte in the so-called ``closed-loop'' scenario of gliotransmission, or to other synapses in the case of ``open-loop'' gliotransmission \citep{Araque_Neuron2014}.
+Among these targeted receptors, presynaptically-located ones, once bound by gliotransmitters, can ultimately regulate synaptic transmission through modulations of synaptic release probability \citep{EngelmanMacDermott_NatRev2004,PinheiroMulle_NatRev2008}.
+In the simplest approximation, as elucidated in \textcolor{red}{Chapter~12}, this modulation can be modeled by treating the parameter $U_0$ in the previously-introduced Tsodyks-Markram synapse model (\eqref{eq:synapse-us}) no longer as a constant, but rather as linearly dependent on the fraction $\Gamma_S$ of activated presynaptic receptors \citep{DePitta_PCB11}:
+\begin{align}
+\der{\Gamma_S}{t} &= O_G\,G_A(1-\Gamma_S) - \Omega_G\,\Gamma_S\\
+U_0 &= (1-\Gamma_S)U_0^{*} + \alpha\,\Gamma_S, \label{eq:gliot-u0}
+\end{align}
+where $G_A$ denotes the gliotransmitter concentration in the extracellular space, and $\alpha$ dictates whether the effect of gliotransmitters on the synapse is to decrease ($0\le \alpha < U_0^*$) or increase neurotransmitter release ($U_0^* < \alpha \le 1$) \citep{DePitta_PCB11}.
+In \brian syntax, this leads to the following synaptic equations:
+\lstinputlisting{code/example_3_io_synapse_1.py}
+%%
+%%
+Because the value of $U_0$ is only needed at the arrival of an action potential, there is no need to include \eqref{eq:gliot-u0} in the above code. Rather, we update $U_0$ at the beginning of the statements executed by synapses upon action potential arrival, i.e.
+\lstinputlisting{code/example_3_io_synapse_2.py}
+
+For the sake of simplicity we retained two inefficiencies in the above code which should otherwise be avoided in larger, computationally-demanding simulations.
+First, we used the \lstinline|(clock-driven)| specification (instead of \lstinline|(event-driven)|), even though synaptic state variables need only be updated on action potential arrival (\secref{sec:synapses}). This allows us to directly retrieve and plot state variables at each time step without the need to manually interpolate between their values at the timing of action potentials.
+For the same reason, we also defined $r_S$ (equation~\ref{eq:rs}) as an additional state variable in the synapse model in \lstinline|synapses_eqs| rather than using it as an auxiliary temporary variable in the statements of \lstinline|synapses_action| as we previously did (\secref{sec:synapses}).
+This choice allows us to easily record $r_S$ by a monitor, avoiding the need to recompute it a posteriori based on the values of the other state variables.
+
+Finally, we need to model gliotransmitter release from the astrocyte.
+For this, we use a similar description to that of synaptic neurotransmitter release (\textcolor{red}{Chapter~13}).
+We thus introduce a new variable $x_A$ which represents the fraction of gliotransmitter resources available for release from the astrocyte and thereby controls the value of $G_A$. These two state variables decay as \citep{DePitta_PCB11}
+\begin{align}
+\der{x_A}{t} &= \Omega_A (1-x_A) \\
+\der{G_A}{t} & = -\Omega_e\,G_{A},
+\end{align}
+while, when gliotransmitter is released, they are updated according to
+\begin{align}
+G_A &\leftarrow G_A + \rho_e G_T U_A x_A\\
+x_A &\leftarrow x_A (1 - U_A)
+\end{align}
+%%
+%%
+As before, we can implement the above by textual equations and statements in \brian, i.e.
+\lstinputlisting{code/example_3_io_synapse_3.py}
+
+\begin{figure}
+\centering
+\begin{subfigure}[!t]{\textwidth}
+\caption{}
+%----------------------------------------------------------------------------------------------------------------
+% Gliotransmission scheme (w/ external stimulation of astrocytes)
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [>=stealth, black!50, text=black, thick,rounded corners=3pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{Orange}] (input) {source\_neurons};
+	\node [neurongroup={10mm}{Orange},below=8.5mm of exc.center] (output) {target\_neurons};
+		
+	%% Synapses
+	\node [synapsegroup={8mm}{Orange}, below right= -3pt and 2.5cm of exc.south] (syn) {synapses};
+	
+	%% Extracellular space
+	\node [synapsegroup={8mm}{Yellow},right = 3.75cm of output.east] (ecs_a2s) {ecs\_astro\_to\_syn};
+
+	%% Astrocytes
+	\node [neurongroup={22mm}{Green},right = 7.0cm of syn.east,
+	       label={[shift={(-0.5ex,2.5ex)},text height=1.5ex,text depth=.25ex,align=center]center:{\normalsize\texttt{astrocyte}}}] (astro) {};
+	\node [below=-1.25ex,align=center,font=\sffamily\small] at (astro.center) {with\\gliotransmitter\\release};
+
+	%% Paths
+	\draw[->] let \p1=(syn.north) in (input.east) -| (\x1-2mm,\y1)
+	          node[above,align=center,near start,font=\sffamily\small] {spike event};
+	\draw[->] let \p1=(syn.south) in (\x1-2mm,\y1) |- (output.east);
+	\draw[->,Yellow!80!black!90,text=black] let \p1=(syn.south) in (ecs_a2s.west) -| (\x1+2mm,\y1) 
+	          node[below,align=center,near start] {\texttt{G\_A (summed)}};
+	\draw[->,Purple,text=black] let \p1=(input.west), \p2=(astro.west), \p3=(ecs_a2s.east) in (\x3,\y1) -- (\x2,\y1) 
+	          node[above,align=center,midway] {\texttt{Y\_S}}
+	          node[below,align=left,midway,font=\sffamily\small] {external\\stimulation};
+	\draw[->,Yellow!80!black!90,text=black] let \p1=(astro.west), \p2=(ecs_a2s.east) in (\x1,\y2) -- (\p2) 
+	          node[below,align=center,midway] {\texttt{G\_A}}
+	          node[below=2.5ex,align=left,midway,font=\sffamily\small] {gliotransmitter in the\\extracellular space};      
+\end{tikzpicture}
+\end{subfigure}\\[2ex]
+%%
+%%
+\begin{subfigure}[t]{\textwidth}
+	\caption{}
+	\centering
+	\includegraphics{figures/results/example_3_io_synapse_Figure.eps}
+\end{subfigure}
+\end{figure}
+\addtocounter{figure}{-1}
+%% Add caption on next page
+\begin{figure} [t!]
+  \caption{(Previous page.) Modeling of modulation of synaptic release by gliotransmission.
+  \textbf{A}~The model uses a \lstinline|Synapses| object \lstinline|ecs_syn_to_astro| to allow synapses' modulation by perisynaptic gliotransmitters.
+  \textbf{B}~(\textit{top panels}) Extracellular gliotransmitter concentration ($G_A$) resulting from intracellular Ca$^{2+}$ dynamics ($C$) in two differently activated astrocytes.
+  (\textit{Bottom panels}) Dynamics of synaptic state variables ($u_S,\,x_S$) and extracellular neurotransmitter concentration ($Y_S$) in response to a sequence of action potentials (\textit{top}) for a synapse without (\textit{black}) and with (\textit{green} and \textit{purple}) gliotransmitter-mediated modulation.
+  %TODO: The "initialized at -17.1s" sounds very confusing to me. Should we not rather state that the external stimulation starts after 16.5s?
+  The two astrocytes were initialized at $t=\SI{-17.1}{s}$ at $x_A=1$, $I=\SI{0.4}{\micro \Molar}$, and $h=0.9$ and were respectively stimulated by $I_{bias}=\SI{0.8}{\micro \Molar}$ (weak gliotransmission) and $I_{bias}=\SI{1.25}{\micro \Molar}$ (stronger gliotransmission).
+  Other model parameters as in the Tables in \appref{apx:parameters}. \label{Fig:io_synapse}}
+\end{figure}
+%%
+%%
+We also need to include in the astrocytic model a mechanism to time gliotransmitter release.
+ We do this by imaging that when the astrocyte's Ca$^{2+}$ concentration increases beyond a threshold $C_\theta$, the astrocyte ``fires'' a gliotransmitter release event upon which the statements of \lstinline|glio_release| are executed.
+ In this fashion, we can define in the astrocyte's \lstinline|NeuronGroup| a threshold crossing for Ca$^{2+}$ concentration (by the \lstinline|threshold| keyword), upon which gliotransmitter is released, and specify by the \lstinline|reset| keyword what to do following firing of a gliotransmitter release event by the astrocyte.
+ Moreover, to avoid the \lstinline|threshold| condition repeatedly triggering the release in all the time steps where the Ca$^{2+}$ concentration is above the threshold, we use the same condition for the \lstinline|refractory| keyword, thereby stating that, as long as the Ca$^{2+}$ concentration is above threshold, no new event should be triggered.
+ That is,
+\lstinputlisting{code/example_3_io_synapse_4.py}
+
+Finally, to complete our model, we have to define how synapses are modulated by the astrocytes' gliotransmitter release.
+We do this defining another \lstinline|Synapses| object as exemplified in \figref{Fig:io_synapse}A, akin to what we did in the previous section to connect synaptic neurotransmitter release to astrocytes (\figref{Fig:astrocyte}A). 
+However, the connection between synapses and the astrocyte is now in the opposite direction, i.e astrocytic gliotransmission is upstream (namely ``presynaptic'') with respect to synapses (which are thus ``postsynaptic''). Hence,
+\lstinputlisting{code/example_3_io_synapse_5.py}
+%%
+%%
+%TODO: I think it's fine to just leave this out and not talk about the (linked) variable mechanism
+%The latter code takes into account the most general scenario whereby a synapse could be modulated by multiple gliotransmitter pathways \citep{Araque_Neuron2014} thanks to the \lstinline|(summed)| specification. If, on the contrary, we deal with synapses that are influenced by gliotransmitter release from only one astrocytic site, then the \lstinline|(linked)| variable mechanism could also be used (\textcolor{blue}{REF}).
+
+\figref{Fig:io_synapse}B illustrates how gliotransmitter release from the astrocyte could change synaptic neurotransmitter release in our model.
+The \textit{top panels} show Ca$^{2+}$ traces ($C$) from two astrocytes that are differently stimulated by exogenous IP$_3$ production ($J_{ex}$ in \eqref{eq:IP3-balance}) so that their intracellular Ca$^{2+}$ concentration crosses the threshold for gliotransmitter release (\textit{gray dashed line}) at different times.
+This results in one astrocyte releasing gliotransmitter in the extracellular space ($G_A$) only once (\textit{green traces}, ``weak gliotransmission''), while the other releases gliotransmitter twice (\textit{purple traces}, ``stronger gliotransmission'').
+The modulation of synaptic release ensuing from these two different timings of gliotransmitter release, is illustrated in the \textit{lower panels}, where neurotransmitter release from a synapse stimulated by a sample train of action potentials, is monitored first in the absence of gliotransmitter release from the astrocyte, and then in the presence of weak vs. stronger gliotransmission.
+Without gliotransmission, the extracellular neurotransmitter concentration ($Y_S$) progressively decreases with the incoming action potentials, compatibly with the onset of strong short-term synaptic depression (\textit{black traces}).
+In the presence of gliotransmission instead, while the amount of released neurotransmitter per action potential is generally lower than in the ``naive'' synapse (since we assumed $\alpha < 0$ in this example), this amount tends to increase at every action potential with respect to preceding ones, and this increase is larger for stronger gliotransmission.
+This is consistent with the onset of short-term synaptic facilitation, and agrees with the experimental observation and the theoretical argument that gliotransmission could change the synapse's short-term plasticity \citep[see also \textcolor{red}{Chapters~8} and~\textcolor{red}{13}]{Araque_Neuron2014,DePitta_Neurosci2015}.
+
+\subsection{Closed-loop gliotransmission}\label{sec:gliot-closed}
+In the examples discussed so far, we only separately considered one-way interactions between synapses and astrocytes, modeling either modulation of astrocytic activity by synaptic neurotransmitters (\secref{sec:astrocyte}) or modulations of synaptic release by astrocytic gliotransmitters (\secref{sec:gliot-open}).
+In practice however, these two pathways may coexist, with gliotransmission feeding back in a closed-loop fashion on the very synapses that stimulate the astrocyte and trigger its gliotransmitter release.
+This section focuses on such a closed-loop scenario for gliotransmission. 
+
+Closed-loop gliotransmission can easily be implemented in \brian by combining the model of a synaptically-activated astrocyte (\figref{Fig:astrocyte}A) with that of open-loop gliotransmission (\figref{Fig:io_synapse}A), resulting in the model scheme shown in \figref{Fig:astro_syn_interaction}A.
+However, it may be noted that in doing so we end up using two independent \lstinline|Synapses| objects (\textit{ellipses}) to separately describe the extracellular space for synapse-to-astrocyte signaling (\lstinline|ecs_syn_to_astro|) and the extracellular space for astrocyte-to-synapse gliotransmission (\lstinline|ecs_astro_to_syn|).
+In reality, both neurotransmitter and gliotransmitter release could occur in the same extracellular space, and thus only a single \lstinline|Synapses| object might be considered at the benefit of computational efficiency.
+Nonetheless, the choice of using two independent objects allows us to take into account the more general scenario of astrocytes that are either sensitive or not  to the activity of the same synapses they modulate \citep{Navarrete_Neuron2010,Martin_Science2015}.
+This is therefore an appropriate choice when dealing with many synapses interacting with astrocytes as in the case of the neuron--glia network discussed at the end of this chapter.
+
+\begin{figure}
+\begin{subfigure}[!t]{\textwidth}
+\caption{}
+\centering
+%----------------------------------------------------------------------------------------------------------------
+% Synapse-glia interaction scheme
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [>=stealth, black!50, text=black, thick,rounded corners=3pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{Orange}] (input) {source\_neurons};
+	\node [neurongroup={10mm}{Orange},below=8.5mm of exc.center] (output) {target\_neurons};
+		
+	%% Synapses
+	\node [synapsegroup={8mm}{Orange}, below right= -3pt and 2.5cm of exc.south] (syn) {synapses};
+	
+	%% Extracellular space
+	\node [synapsegroup={8mm}{Purple},right = 3.75cm of input.east] (ecs_s2a) {ecs\_syn\_to\_astro};
+	\node [synapsegroup={8mm}{Yellow},right = 3.75cm of output.east] (ecs_a2s) {ecs\_astro\_to\_syn};
+
+	%% Astrocytes
+	\node [neurongroup={22mm}{Green},right = 7.2cm of syn.east,
+	       label={[shift={(-0.5ex,2.5ex)},text height=1.5ex,text depth=.25ex,align=center]center:{\normalsize\texttt{astrocyte}}}] (astro) {};
+	\node [below=-1.25ex,align=center,font=\sffamily\small] at (astro.center) {with\\gliotransmitter\\release};
+
+	%% Paths
+	\draw[->] let \p1=(syn.north) in (input.east) -| (\x1-2mm,\y1)
+	          node[above,align=center,near start,font=\sffamily\small] {spike event};
+	\draw[->] let \p1=(syn.south) in (\x1-2mm,\y1) |- (output.east);
+	\draw[->,Purple,text=black] let \p1=(syn.north) in (\x1+2mm,\y1) |- (ecs_s2a.west)
+	          node[above,align=center,near end] {\texttt{Y\_S}};
+	\draw[->,Yellow!80!black!90,text=black] let \p1=(syn.south) in (ecs_a2s.west) -| (\x1+2mm,\y1) 
+	          node[below,align=center,near start] {\texttt{G\_A (summed)}};
+	\draw[->,Purple,text=black] let \p1=(ecs_s2a.east), \p2=(astro.west) in (\p1) -- (\x2,\y1) 
+	          node[above,align=center,midway] {\texttt{Y\_S (summed)}};
+	\draw[->,Yellow!80!black!90,text=black] let \p1=(astro.west), \p2=(ecs_a2s.east) in (\x1,\y2) -- (\p2) 
+	          node[below,align=center,midway] {\texttt{G\_A}};	          
+\end{tikzpicture}
+\end{subfigure}\\[2.0ex]
+%%
+%%
+\begin{subfigure}[t]{0.49\textwidth}
+	\caption{}
+	\centering
+	\includegraphics{figures/results/example_4_synrel_Figure.eps}
+\end{subfigure}
+\begin{subfigure}[t]{0.49\textwidth}
+	\caption{}
+	\centering
+	\includegraphics{figures/results/example_4_rsmean_Figure.eps}
+\end{subfigure}
+\caption{Closed-loop gliotransmission.
+\textbf{A}~In the most general design, modeling of closed-loop gliotransmission in \brian separates between the extracellular space of synapse-to-astrocyte signaling (\lstinline|ecs_syn_to_astro|) and the extracellular space of astrocyte-to-synapse gliotransmission (\lstinline|ecs_astro_to_syn|).
+\textbf{B}~Average extracellular concentration of synaptically-released neurotransmitter ($\tave{Y_S}$) for step increases of the mean rate of Poisson-generated incoming action potentials (\textit{top panel}, $\nu_{in}=\SIlist[list-final-separator={, }]{0.011;0.11;1.1;11}{\hertz}$ for 5-s time intervals; traces averaged over 500~identical synapses.)
+\textbf{C}~Corresponding average release of synaptic neurotransmitter resources as function of the rate of incoming action potentials (data points and error bars: mean~$\pm$~standard deviation for 100~trials.)
+Parameters as in the tables in \appref{apx:parameters} except for $O_\beta=\SI{3.2}{\micro \Molar.s^{-1}}$; $I_{bias}=\SI{1}{\micro \Molar}$ (\textit{open-loop gliotransmission}); $I_{bias}=\SI{0}{\micro \Molar}$ (\textit{closed-loop gliotransmission}).}
+\label{Fig:astro_syn_interaction}
+\end{figure}
+%%
+%%
+To elucidate some of the possible functional implications of closed-loop gliotransmission we set out to characterize the average synaptic release for~\lstinline|N_synapses=500| identical synapses for different input stimuli and compare it to the open-loop scenario of gliotransmission as well as to the ``naive'' scenario without gliotransmission.
+\brian is optimized to deal with large objects (see \appref{apx:tech-stuff}), so rather than simulating one synapse at a time, for 500~times in the three different scenarios (i.e.~1500 simulations in total), we simulate all synapses in all scenarios in one single run.
+This is achieved by considering $500\times 3$ \lstinline|synapses| and an \lstinline|astrocyte| group of $500\times 2$ elements. The first 500 synapses are modulated by gliotransmitters from the first 500 astrocytes in a closed-loop fashion, the second group of 500 synapses is modulated by open-loop gliotransmission mediated by the other 500 astrocytes; and finally, the remaining synapses do not consider any gliotransmission.
+In contrast to previous synaptic connection patterns, here we can directly calculate a target index for each connection, instead of evaluating a logical condition for every possible connection pair.
+\brian has a built-in syntax for such descriptions, which offers a much more efficient way of establishing connections.
+In this syntax, we provide an expression to calculate the target index $j$ based on the source index $i$ and potentially other pre- or postsynaptic properties.
+To exclude certain potential connections, this expression can be combined with an optional \lstinline|if| part stating the condition for a connection to exist.
+Remember that in our example here, the source index $i$ and the target index $j$ each refer either to synapses or astrocytes, depending on the direction of the connection (``synapses to astrocytes'' or ``astrocytes to synapses'').
+This leads to the following \brian code:
+\lstinputlisting{code/example_4_synrel_2.py}
+
+\figref{Fig:astro_syn_interaction}B shows a reproduction of \textcolor{red}{Figure~13.2} by our \brian implementation of closed-loop gliotransmission for the time evolution of the average neurotransmitter concentration in the synaptic cleft ($\tave{Y_S}$) in response to step increases in the rate of incoming action potentials ($\nu_{in}$, \textit{top panel}).
+Gliotransmission dramatically changes synaptic transmission (\textit{colored} vs. \textit{black traces}), with the effect of closed-loop gliotransmission (\textit{purple trace}) being somewhat intermediate between the scenarios of no gliotransmission (\textit{black trace}) and open-loop gliotransmission (\textit{green trace}).
+
+This is further elucidated in \figref{Fig:astro_syn_interaction}C where the mean neurotransmitter concentration in the extracellular space in the three scenarios is shown for different mean rates of randomly incoming action potentials.
+The low-pass filter characteristics of synapses without gliotransmission (\textit{top panel}) turns into a bell-shaped, band-pass filter characteristics caused by (release-decreasing) open-loop gliotransmission (\textit{middle panel}) (\textcolor{red}{Chapter 12}).
+%TODO: Not quite sure I see how it "tends to approach the shape of the curve in the open-loop scenario for increasing rates" and that in the end it resembles the naive scenario more than the open-loop one...
+In the presence of closed-loop gliotransmission however, the average concentration of synaptically-released neurotransmitter is in between those expected in the other two scenarios for low input rate values, and tends to approach the shape of the curve in the open-loop scenario for increasing rates.
+For high input rates however, the release-decreasing effect of gliotransmission is such that the synapse is ultimately silenced and cannot sustain further gliotransmitter release.
+Synaptic transmission then becomes independent of gliotransmission again as if it were in the naive scenario without gliotransmission, which accounts for the jump at $\nu_{in}> \SI{10}{\hertz}$.
+
+\subsection{Networks of astrocytes}\label{sec:astro-network}
+Astrocytes are known to arrange in networks of different shape and connectivity depending on the brain region under consideration \citep{Giaume_etal_NatureRevNeurosci2010}, and to be capable of propagating Ca$^{2+}$ signals through such networks in the form of intercellular (regenerating) waves.
+The mechanisms underlying such propagation can be multiple and varied \citep{ScemesGiaume2006}.
+Here, we only focus on the well characterized mechanism of intracellular IP$_3$ diffusion through gap junctions channels (GJCs) between neighboring astrocytes (\textcolor{red}{Chapter~7}).
+
+\begin{figure}
+\begin{subfigure}[t]{0.48\textwidth}
+\caption{}
+\centering
+%----------------------------------------------------------------------------------------------------------------
+% Astrocyte ring scheme
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [scale=2.2,
+       >=stealth, black!50, text=black, thick,rounded corners=3pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   astrogroup/.style 2 args = {circle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+                                    
+	%% First draw the ring as three arches
+	\draw (0,0) arc [start angle=180,delta angle=115,x radius=1,y radius=1]
+		node[pos=0] (origin) {}
+		node[pos=1] (topend) {}
+		\foreach [count=\i] \p in {0.182,0.364,...,0.91}
+			{node[pos=\p] (tn\i) {}};
+	\draw[dashed] (topend) arc [start angle=245,end angle=115,x radius=-1,y radius=1]
+	        node[pos=1] (botend) {};
+	\draw (origin) arc [start angle=180,delta angle=-115,x radius=1,y radius=1]
+		\foreach [count=\i] \p in {0.182,0.364,...,0.91}
+			{node[pos=\p] (bn\i) {}};	
+	
+	%% Add astrocytic nodes (using previously-defined locations)
+	\node [astrogroup={3mm}{Red}] (input) at (origin) {};
+    \foreach [count=\i] \p in {0.182,0.364,...,0.91}
+    	{\node [astrogroup={3mm}{black}] at (tn\i) {};
+    	 \node [astrogroup={3mm}{black}] at (bn\i) {};}
+    
+	%% Add input stimulus
+	\node[left=1.5cm of input.west] (in) {};
+	\draw[->,black,rounded corners=0cm,text=black,decorate,
+	      decoration={snake,amplitude=.5mm,segment length=2mm,
+	                  pre length=3mm,post length=3mm}] (in) -- (input.west)
+	      node[below=.5ex,align=left,midway,font=\sffamily\small] {external\\stimulation};        
+\end{tikzpicture}
+\end{subfigure}
+\begin{subfigure}[t]{0.48\textwidth}
+\caption{}
+\vspace{1.2cm}
+\centering
+%----------------------------------------------------------------------------------------------------------------
+% Astrocyte networks (gap junctions)
+%----------------------------------------------------------------------------------------------------------------
+\begin{tikzpicture} [scale=0.8,
+       >=stealth, black!50, text=black, thick,rounded corners=3pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Reference node
+	\node [draw=none] (start) {};	
+
+	%% Astrocytes
+	\node [neurongroup={20mm}{Green},right = 1.7cm of start.east] (astro) {astrocytes};
+
+	%% Gap junctions
+	\node [synapsegroup={8mm}{Green},right = 0.25cm of astro.east] (gjc) {astro\_to\_astro};
+
+	%% Paths
+	\draw[->,Purple,text=black] (start) -- (astro.west) 
+	          node[above,align=center,midway] {\texttt{I\_bias}}
+	          node[below,align=left,midway,font=\sffamily\small] {external\\stimulation};
+	\draw[->,Green,text=black] let \p1=(astro.east) in (\x1,\y1 + 8mm) -| (gjc.north) 
+	          node[above,align=center,near start] {\texttt{I\_coupling}}
+	          node[above=0.6ex,align=left,font=\sffamily\small] at (gjc.north east) {IP$_3$ diffusion by\\gap junctions};
+	\draw[->,Green,text=black] let \p1=(astro.east) in (gjc.south) |- (\x1,\y1 - 8mm)
+	          node[below,align=center,near end] {\texttt{I\_coupling}};	          
+\end{tikzpicture}
+\end{subfigure}\\[2ex]
+%%
+%%
+\begin{subfigure}[t]{\textwidth}
+\caption{}
+\centering
+\includegraphics{figures/results/example_5_astro_ring_Figure.eps}
+\end{subfigure}
+\caption{Astrocytes connected in a network.
+\textbf{A}~Sample astrocyte network in a ring configuration with only one cell (in \textit{red}) being exogenously stimulated.
+Connections between cells are bidirectional, and represent~GJC-mediated coupling between neighboring astrocytes.
+\textbf{B}~General \brian modeling principle of astrocytic networks: GJC-mediated connections can be modeled by a \lstinline|Synapses| object (\textit{ellipse}).
+\textbf{C}~Intercellular Ca$^{2+}$ wave generation and propagation in a ring of 50~identical astrocytes mediated by stimulation of cell~25 (\textit{red trace}).
+Parameters as in \tabref{Tab:astrocytes} with $F_{ex}=\SI{0.09}{\micro \Molar.s^{-1}}$; and $I_{bias}=\SI{1}{\micro \Molar}$.}
+\label{Fig:astro_network}
+\end{figure}
+%%
+%%
+From a modeling perspective, IP$_3$ diffusion from one astrocyte~$j$ to a neighboring one~$i$ can be thought as a flux of IP$_3$ ($J_{ij}$) which is some nonlinear (rectifying) function of the IP$_3$ concentration gradient between cells $i$ and $j$, i.e. $\Delta_{ij}I = I_i - I_j$, such as, for example \citep[see also \textcolor{red}{Chapter~7}]{Lallouette_FCN2014}
+\begin{align}
+J_{ij} &= -\frac{F}{2}\left(1+\tanh\left(\frac{|\Delta_{ij} I|-I_{\theta}}{\omega_{I}}\right)\right)\sgn(\Delta_{ij})
+\end{align}
+Incidentally, we note that the above formula is reminiscent of the expression of the exogenous IP$_3$ flux ($J_{ex}$) in \eqref{eq:IP3-balance}, insofar as the latter may be regarded as a special case of intercellular IP$_3$ influx to any astrocyte from a much larger external IP$_3$ source (i.e. $I_{bias}$ in our notation) \citep{Goldberg_etal_PCB2010}.
+Because $J_{ij}$ is a function of IP$_3$ concentrations in connected astrocytes (i.e. $I_i,\,I_j$) by $\Delta_{ij} I$, it is astrocyte-dependent and not constant.
+Therefore, once we add $J_{ij}$ to our astrocyte equations in \brian (denoted in the code below by \lstinline|J_coupling|), we must define it as an astrocytic variable (that is without the \lstinline|(constant)| flag), i.e.
+\lstinputlisting{code/example_5_astro_ring_1.py}
+
+Connections between astrocytes by~GJCs may conveniently be implemented by a \lstinline|Synapses| object in \brian, once we regard $J_{ij}$ as the IP$_3$ flow from ``presynaptic'' astrocyte~$j$ to ``postsynaptic'' astrocyte~$i$ (\figref{Fig:astro_network}B).
+The effective total \lstinline|J_coupling| to cell~$i$ by intercellular IP$_3$ diffusion is the sum of all IP$_3$ fluxes incoming to cell~$i$ from the $\mathcal{A}^i$ astrocytes connected to this latter by~GJCs, i.e. $J_\mathrm{coupling}^i = \sum_{j \in \mathcal{A}^i} J_{ij}$. In \brian code, this reads 
+\lstinputlisting{code/example_5_astro_ring_2.py}
+
+The above code bears the caveat of defining~GJCs as unidirectional when they may not be so.
+This caveat can be easily overcome, specifying both a connection from astrocyte~$i$ to astrocyte~$j$ and a connection from~$j$ to~$i$, whenever we want to model bidirectional IP$_3$ diffusion between neighboring astrocytes. For example, to connect astrocytes in a ring, where every astrocyte is connected to its neighbors (\figref{Fig:astro_network}A), we can make use of the \lstinline|connect| method of the \lstinline|astro_to_astro| object, and specify the following condition in terms of \brian predefined pre- and post-synatic indexes, \lstinline|i| and \lstinline|j| respectively, and the total number of elements in the presynaptic group \lstinline|N_pre|\footnote{Note that the expression has been split into two strings for better readability. Python automatically merges adjacent strings.}:
+\lstinputlisting{code/example_5_astro_ring_3.py}
+where the \lstinline|%| operator implements the modulo (remainder) operation.
+
+\figref{Fig:astro_network}C shows a snapshot of Ca$^{2+}$ dynamics of~50 astrocytes connected in a ring, where only the~25th cell is exogenously stimulated (\textit{red trace}).
+The fact that all cells, for some $t>0$, display Ca$^{2+}$ fluctuations, is a direct consequence of inclusion of intercellular IP$_3$ diffusion in our model.
+Such diffusion allows excess IP$_3$ from the stimulated cell to be redistributed by GJCs in the ring to other cells where it ultimately triggers CICR.
+It may also be appreciated how, in this example, bidirectional GJC communication allows for emergence of intercellular Ca$^{2+}$ waves that propagate both from and to the stimulated cell, as evidenced by wave fronts respectively oriented like `$\backslash$' or like '/'.
+
+\subsection{Coupled neuron and astrocyte networks}\label{sec:ng-network}
+The examples discussed so far provide together all the ingredients to model complex networks of interacting neurons and astrocytes (\figref{Fig:COBA_with_astro}A).
+However, to realistically implement such networks we also need to specify the connections among neurons, synapses and astrocytes in the physical (Euclidean) space.
+In the following we show how to include space in such networks, limiting our focus here to planar networks for simplicity, although the outlined procedure can easily be extended to higher dimensions.
+
+We start by adding two cell-specific parameters, $x$~and~$y$, to each neuron which store the cell's~2D spatial coordinates and initialize them so that neurons are arranged on a grid of \lstinline|N_rows| rows and \lstinline|N_cols| columns:
+\lstinputlisting{code/example_6_COBA_with_astro_1.py}
+%%
+%%
+Furthermore, we also add a synapse-specific constant \lstinline|astrocyte_index| to the synapse's equations, whose value will correspond to the index of the astrocyte that ensheathes a synapse: 
+\lstinputlisting{code/example_6_COBA_with_astro_2.py}
+%%
+\begin{figure}[!p]
+\flushleft
+\begin{subfigure}[t]{\textwidth}
+	\caption{}	%----------------------------------------------------------------------------------------------------------------
+% Complete neuron-glia network scheme
+%----------------------------------------------------------------------------------------------------------------
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture} [scale=1.0,
+       >=stealth, black!50, text=black, thick,rounded corners=5pt,
+	   every new ->/.style = {shorten >=1pt},
+	   every node/.style={font=\footnotesize},
+	   neurongroup/.style 2 args = {rectangle, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex},
+       synapsegroup/.style 2 args = {ellipse, minimum size=#1, 
+	                                very thick, draw=#2!80!black!90, top color=white,
+                                    bottom color=#2!80!black!50,
+                                    font=\ttfamily, text height=1.5ex,text depth=.25ex}]
+	%% Neurons
+	\node [neurongroup={10mm}{Red}] (exc) {exc\_neurons};
+	\node [neurongroup={10mm}{LightBlue},below=8.5mm of exc.center] (inh) {inh\_neurons};
+	\begin{scope}[on background layer]
+		\node [neurongroup={32mm}{gray},fit=(exc) (inh),
+		       label={[shift={(0ex,-3ex)}]north:{\texttt{neurons}}}] (neurons) {};
+	\end{scope}
+	
+	%% Reference node for external input
+	\node [draw=none,left=1.7cm of neurons.west] (iex) {};
+	
+	%% Synapses
+	\node [synapsegroup={8mm}{Red},right = 1cm of exc.east] (exc_syn) {exc\_synapses};
+	\node [synapsegroup={8mm}{LightBlue},right = 1cm of inh.east] (inh_syn) {inh\_synapses};
+	
+	%% Extracellular space
+	\node [synapsegroup={8mm}{Purple},right = 1cm of exc_syn.east] (ecs_s2a) {ecs\_syn\_to\_astro};
+	\node [synapsegroup={8mm}{Yellow},right = 1cm of inh_syn.east] (ecs_a2s) {ecs\_astro\_to\_syn};
+
+	%% Astrocytes
+	\node [neurongroup={22mm}{Green},right = 12cm of neurons.east,
+	       label={[shift={(-0.5ex,2.5ex)},text height=1.5ex,text depth=.25ex,align=center]center:{\normalsize\texttt{astrocytes}}}] (astro) {};
+	\node [below=-1.25ex,align=center,font=\sffamily\small] at (astro.center) {with\\gliotransmitter\\release};
+	
+	%% Gap junctions
+	\node [synapsegroup={8mm}{Green},right = 0.25cm of astro.east] (gjc) {astro\_to\_astro};
+
+	%% Simple paths
+	\draw[->] (iex) -- (neurons.west)
+			  node[above,align=center,midway] {\texttt{I\_ex}}
+	          node[below,align=left,midway,font=\sffamily\small] {external\\stimulation};
+	\draw[->] (exc) -- (exc_syn)
+			  node[above=-0.5ex,align=center,midway,font=\sffamily\small] {spike} node[below=-0.5ex,align=center,midway,font=\sffamily\small] {event};
+	\draw[->] (inh) -- (inh_syn)
+	          node[above=-0.5ex,align=center,midway,font=\sffamily\small] {spike} node[below=-0.5ex,align=center,midway,font=\sffamily\small] {event};
+	\path (exc_syn) edge[->,Purple,text=black] node[above,align=center,midway](ys) {\texttt{Y\_S}} (ecs_s2a);
+	\path let \p1=(ecs_s2a.east),\p2=(astro.west) in (ecs_s2a) edge[->,Purple,text=black] node[above,align=center,midway] {\texttt{Y\_S (summed)}} (\x2,\y1);
+	\path let \p1=(astro.west),\p2=(ecs_a2s.east) in (\x1,\y2) edge[->,Yellow!80!black!90,text=black] node[below,align=center,midway] {\texttt{G\_A}}(ecs_a2s);
+	%% Complex paths
+	\draw[->] let \p1=(neurons.north east) in (exc_syn.north) |- (\x1,\y1-3mm)
+	          node[above,align=center,near end] {\texttt{+w\_e*r\_S}};
+	\draw[->] let \p1=(neurons.south east) in (inh_syn.south) |- (\x1,\y1+3mm)
+	          node[below,align=center,near end] {\texttt{+w\_i*r\_S}};
+	\draw[->,Green!80!black!90,text=black] let \p1=(astro.east), \p2=(ecs_s2a.east) in (\x1,\y2) -| (gjc.north) 
+	          node[above,align=center,near start] {\texttt{I\_coupling}};
+	\draw[->,Green!80!black!90,text=black] let \p1=(astro.east), \p2=(ecs_a2s.east) in (gjc.south) |- (\x1,\y2)
+	          node[below,align=center,near end] {\texttt{I\_coupling}};
+	\draw[->,Yellow!80!black!90,text=black] let \p1=(ecs_a2s.west),\p2=(exc_syn.south),\p3=(ys.south),\p4=(inh_syn.north) in (\p1) -- (\x3 + 2mm,\y1) -- (\x3 + 2mm,\y4+1mm) -- coordinate(lbl1) (0.5*\x3 + 0.5*\x2 + 1mm,\y4+1mm) -- (\x2,\y4+1mm) -- (\x2,\y2);
+	\node[above,align=center] at (lbl1) {\texttt{G\_A (summed)}};          
+\end{tikzpicture}}
+\end{subfigure}\\[2ex]
+\begin{subfigure}[t]{\textwidth}
+	\caption{}
+	\centering
+	\includegraphics{figures/results/example_6_COBA_with_astro_Figure.eps}
+\end{subfigure}
+\caption{Recurrent neuron-glial network.
+\textbf{A}~Neuron-glial network model design in \brian.
+\textbf{B}~Simulations of neuron-glia network for a rectangular-pulse increase of external current ($I_{ex}$, \textit{top panel}).
+The raster plot (\textit{middle panel}) shows the firing activity of 25\% out of all excitatory (\textit{red}) and inhibitory neurons (\textit{blue}) of the network, and gliotransmitter release (\textit{green}) from an equal fraction of astrocytes.
+The network-averaged firing rate is shown at the \textit{bottom}.
+Neural activity dramatically changes from asynchronous low-firing activity to synchronous high-firing activity following gliotransmitter release from astrocytes during the period of high stimulation ($2\le t < \SI{4}{s}$).
+External current: $I_{ex}=\SI{100}{\pico A}$ for $t< \SI{2}{s}$ or $t\ge \SI{4}{s}$; $I_{ex}=\SI{120}{\pico A}$ for $2\le t < \SI{4}{s}$. Neural and synaptic parameters as those in \figref{Fig:COBA} (see also \tabref{Tab:neu-syn}). Astrocyte parameters as in \tabref{Tab:astrocytes} except for $O_\beta=\SI{0.5}{\micro \Molar.s^{-1}}$; $O_\delta=\SI{1.2}{\micro \Molar.s^{-1}}$; and $I_{bias}=0$.} 
+\label{Fig:COBA_with_astro}
+\end{figure}
+%%
+We finally need to define the effective connections between the different cells of the network.
+Overall there are four different types of connections:
+(i)~connections between neurons which defines the actual synapses;
+(ii)~connections from synapses to astrocytes, as pathways to trigger astrocyte activation;
+(iii)~connections from astrocytes to synapses as routes for gliotransmission and thereby modulation of synaptic release;
+and ultimately, (iv)~connections between astrocytes by GJCs.
+Here, for simplicity, we assume random connectivity between all neurons, independently of their spatial coordinates (as in \figref{Fig:COBA}C).
+Furthermore, we make the assumption that only excitatory synapses can activate astrocytes and be modulated by them, restricting in this way our focus on the experimentally well-characterized pathway of closed-loop glutamatergic gliotransmission \citep{PereaAraque_Science2007,Panatier_etal_Cell2011}.
+In particular, we specify which astrocyte is responsible for which excitatory synapse on the basis of the spatial position of postsynaptic neurons with respect to $N_a$ astrocytes (\lstinline|N_a|) which, like neurons, are arranged on a regularly-spaced grid of $N_{rows}$ rows (\lstinline|N_rows_a|) and $N_{cols}$ columns (\lstinline|N_cols_a|), i.e.
+\lstinputlisting{code/example_6_COBA_with_astro_3.py}
+%%
+%%
+We then define the network of astrocytes:
+\lstinputlisting{code/example_6_COBA_with_astro_4.py}
+%%
+%%
+Next, we connect the astrocytes with those synapses that they are supposed to ensheathe according to  \lstinline|astrocyte_index|, i.e.
+\lstinputlisting{code/example_6_COBA_with_astro_5.py}
+%%
+Finally, we specify the connectivity of the astrocyte network.
+In this example, we introduce recurrent connections between astrocytes by GJCs, connecting each astrocyte to all other astrocytes found at the boundary of its anatomical domain, in line with the experimental observation that neighboring astrocytes are more likely to be connected than astrocytes that are far apart \citep{Giaume_etal_NatureRevNeurosci2010,Pannasch_TiNS2013}.
+Given that the diameter of astrocyte is between 50--130~\si{\micro m} \citep{Chao_Book2002}, we consider an intermediate value of \SI{75}{\micro m}, whereby:
+\lstinputlisting{code/example_6_COBA_with_astro_6.py}
+
+We present a simulation of our neuron-glia network in \figref{Fig:COBA_with_astro}B, where we show the raster plot of the firing activity of 25\% of the excitatory (\textit{red}) and inhibitory neurons (\textit{blue}) of the network along with gliotransmitter release events from an equal fraction of astrocytes (\textit{green}), in response to a transient increase of external stimulation (rectangular pulse in the \textit{top panel}).
+Up to the onset of stimulation (i.e. $t < \SI{2}{s}$) there is no gliotransmitter release from astrocytes, therefore the network behaves as it would be expected for a neuronal network without the astrocyte component.
+It may be noted in fact how the raster plot of our network, and the ensuing dynamics of the total firing rate (\textit{bottom panel}), show low-frequency population activity, similar to those reported in \figref{Fig:COBA}C for our neuronal-only network model introduced in Sections~\ref{sec:neurons} and~\ref{sec:synapses}.
+For $2\le t < \SI{4}{s}$, the increase of external stimulation correlates with an increase in the firing rate of the whole network, as reflected by a denser raster plot during this period.
+In particular for $t > \SI{3.5}{s}$, the larger neuronal firing triggers gliotransmitter release from astrocytes and thus astrocytic modulation of excitatory synaptic transmission.
+Because this modulation is slow-decaying (\textcolor{red}{Chapter~8}), it outlasts the transient increase of external stimulation and changes neural firing once the external stimulation returns to its original value (at $t=\SI{4}{s}$).
+We can indeed clearly see how, for $t > \SI{4}{s}$, excitatory neurons are more synchronized in firing than for $t<\SI{2}{s}$, as a consequence of gliotransmission from astrocytes.
+This is just one example of the many possible ways astrocytes could actively shape neural activity, which has also been suggested to participate in the genesis of cortical~UP and~DOWN states \citep{Fellin_FN2012}. 
+
+\section*{Conclusions}
+Computational approaches to model glial physiology are hampered by the lack of definitive experimental evidence and a missing comprehensive modeling framework that could tackle the many different scales of glial signaling.
+``Standard'' glia models have yet to be identified, and neural simulator packages therefore do not ship such models as part of their pre-built model libraries.
+While in theory these libraries could be extended by individual researchers to add their preferred glia model, in practice this path is only open to experienced programmers.
+
+In this chapter, we have shown how \brian's simple syntax and versatility can offer a solution to these problems, providing an ideal tool to model glial physiology, and specifically the influence of astrocytes on neural activity.
+\brian's syntax allows the researcher to flexibly describe models by using conventional mathematical notation instead of low-level programming code \citep{Goodman2008,Goodman2009,Stimberg2014}.
+Moreover, \brian's core data structure \lstinline|NeuronGroup|, which describes a neuron by a set of~ODEs, parameters, and actions that are triggered by conditions, provides a versatile framework that can be borrowed to also describe non-neuronal cell types such as astrocytes.
+Similarly, the \lstinline|Synapses| data structure that, in purely neural simulations, represents chemical and electrical synapses that connect neurons, can also be used to model the interactions between astrocytes and synapses, as well as~GJCs between astrocytes.
+Importantly, this flexibility does not come at the cost of computational efficiency: without any user interaction, \brian employs a code generation approach that generates highly efficient code based on the user-provided high-level description \citep{Goodman2010}.
+We hope that these arguments motivate newcomers as well as experienced researchers to experiment with \brian in the future and use it to model glial physiology in their research, thereby contributing to the growth of this exciting emerging field of computational research.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Appendices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{appendices}
+\renewcommand\thetable{\thesection\arabic{table}}
+
+\section{Technical remarks on \brian} \label{apx:tech-stuff}
+\brian scripts are executed by default in the so-called ``runtime mode''. This mode runs the simulation loop over the time steps in Python and executes chunks of target language code that have been generated from the model description provided by the user.
+The choice of target language depends on the user's system; \brian will prefer to use the C++ programming language but, if the user does not have a working C++ compiler, will fall back to a pure Python-based simulation.
+A Python-based simulation will usually be significantly slower but can give comparable performance for big networks due to the use of vectorized computation \citep{Brette2011}. 
+The advantage of the runtime mode is that the user has full control to combine the automatically generated simulation code with arbitrary hand-written Python code.
+This code could dynamically change aspects of the model during the run, or interact with it in other ways.
+For example it could read out the model's state and hand it over to some code for visualization or terminate the simulation based on some criterion.
+This mode however involves a significant overhead per simulated time step, since the program flow constantly switches between Python and the individually-generated code chunks.
+For small-to-medium size networks for which computations during a single time step do not take long, this overhead can critically dominate the total runtime and lead to long simulation times.
+
+To avoid this problem and allow more efficient simulations, \brian also offers an alternative mode called ``standalone mode''.
+In this mode, the complete simulation code, including the main simulation loop, are written as a set of C++ files to disk which can then be compiled and executed as a single program.
+The resulting files are independent of the Python platform, so that the simulation could also be run on systems where Python may not be available (for example, in robotics).
+Moreover, if the user code complies to some specific conventions and does not run custom Python code during a simulation, then switching from runtime to standalone mode only requires the addition of a \lstinline|set_device('cpp_standalone')| line to the simulation script;
+\brian then takes care of the whole process transparently.
+For further details, the reader is invited to see comments in individual examples files (\appref{apx:example-files}) and/or refer to the online \brian documentation.
+
+\section{Example files} \label{apx:example-files}
+The code for all the simulations presented in this chapter has been organized in multiple standalone example files as detailed in the following.
+Unless stated otherwise, all simulations start from zero initial conditions, except for $h(0) = 0.9$ and $x_S(0) = x_A(0) = 1$.
+
+\subsection*{\lstinline|example_1_COBA.py|}
+This file implements the simulation of the neuron-only network model of~\figref{Fig:COBA}.
+The simulation runs for \SI{1}{s} with an integration time step of \SI{0.1}{\milli s}.
+Out of all \lstinline|neurons|, we distinguish between excitatory (\lstinline|exc_neurons|) and inhibitory ones (\lstinline|inh_neurons|), which give rise to excitatory synapses (\lstinline|exc_syn|) and inhibitory synapses (\lstinline|inh_syn|), connecting from the respective population to the full population.
+Because the dynamics of synaptic variables are updated only at incoming action potentials (i.e. \lstinline|(event-driven)|), we can monitor the value of these variables only at the arrival time of action potentials but not in between.
+However, we can reconstruct the whole synaptic dynamics by recording synaptic variables immediately after each action potential (i.e. at $t_i^+$ with $i>0$), which is achieved by specifying the keyword argument \lstinline|when='after_synapses'| in the synaptic \lstinline|StateMonitor|.
+For $t>t_i$, the solutions of the synapse's equations~\ref{eq:synapse-us} and~\ref{eq:synapse-xs} then read \citep{Tsodyks_LesHouches2005}:
+\begin{align*}
+	u_S(t) &= u_S(t_i^+) \exp \left(-\Omega_f (t-t_i)\right)\\
+	x_S(t) &= 1 + \left(x_S(t_i^+)-1\right) \exp\left(-\Omega_d (t-t_i)\right)	
+\end{align*}
+whereas synaptic release by the $i$th action potential at time $t_i$ is given by $r_S(t_i) = u_S(t_i^+)x_S(t_i^-) = u_S(t_i^+)x_S(t_i^+)/\left(1-x_S(t_i^+) \right)$.
+
+\subsection*{\lstinline|example_2_gchi_astrocyte.py|}
+This code implements the synaptically-stimulated astrocyte model and related simulations of~\figref{Fig:astrocyte}.
+The astrocyte's temporal dynamics in response to synaptic activity was simulated for \SI{30}{s} using the derivative-free Milstein integration method with a time step of \SI{1}{\milli s}.
+In the deterministic limit of $\xi(t)\rightarrow 0$ in \eqref{eq:astro-h-stoch}, the Milstein method reduces to the classical (forward) Euler method which is suitable, at sufficiently small time steps, to numerically solve dynamics of the deterministic astrocyte model, too.
+Synapses are stimulated by a train of periodic action potentials at rate $f_0 = \SI{0.5}{\hertz}$ (\lstinline|f_0|, rate of generation of action potentials by presynaptic neurons) generated by
+\lstinputlisting{code/example_2_gchi_astrocyte_1.py}
+
+\subsection*{\lstinline|example_3_io_synapse.py|}
+This file implements the open-loop model of gliotransmission and the simulations shown in \figref{Fig:io_synapse}.
+The code considers three synaptic connection between one presynaptic \lstinline|source_neurons| and one postynaptic \lstinline|target_neurons|, built by passing \lstinline|n=3| as an argument to the \lstinline|synapses.connect| method.
+We further consider two astrocytes stimulated by different \lstinline|I_bias| values, and connect them to synapses 2 and 3 respectively, leaving synapse 1 as it is (i.e. without gliotransmission).
+This is done by:
+\lstinputlisting{code/example_3_io_synapse_6.py}
+
+\subsection*{\lstinline|example_4_synrel.py|}
+This code runs the closed-loop model of gliotransmission for simulations in \figref{Fig:astro_syn_interaction}B.
+The code considers \lstinline|N_synapses| neurons (\lstinline|source_neurons|), each firing action potentials drawn from an independent, inhomogeneous Poisson process with a stepped rate specified in a \lstinline|TimedArray|, i.e.
+\lstinputlisting{code/example_4_synrel_1.py}
+%%
+%%
+The \lstinline|target_neurons| are used to build \lstinline|N_synapses| multi-synaptic connections from the\linebreak[4] \lstinline|source_neurons|, with each connection constituted of three synapses.
+Out of these three synapses, the first one is connected with its own astrocyte and is, in turn, modulated by gliotransmitters released from this latter (closed-loop scenario);
+the second one is modulated by gliotransmitters released from another astrocyte (open-loop scenario);
+the third one is left as it is (scenario without gliotransmission).
+Since this is repeated for all \lstinline|N_synapses|, and overall we have \lstinline|N_astro=2| different scenarios of gliotransmission (open-loop vs. closed-loop), we consider \lstinline|N_astro*N_synapses| astrocytes in total, and connect them accordingly with \lstinline|N_synapses*(N_astro+1)| synapses as elucidated in \secref{sec:gliot-closed}.  
+
+\subsection*{\lstinline|example_4_rsmean.py|}
+The file provides the code to build the synaptic transfer characteristics in \figref{Fig:astro_syn_interaction}C in terms of average synaptically-released neurotransmitter resources for different input rates of (presynaptically) incoming action potentials.
+
+\subsection*{\lstinline|example_5_astro_ring.py|}
+This code implements the astrocyte ring model in \figref{Fig:astro_network}.
+The simulation runs for \SI{4000}{s} with a time step of \SI{50}{\milli s}.
+Calcium concentrations shown in \figref{Fig:astro_network}C were normalized by their maximum.
+
+\subsection*{\lstinline|example_6_COBA_with_astro.py|}
+This file runs the simulation of the recurrent neuron-glial network in \figref{Fig:COBA_with_astro}.
+To stimulate the network by a time-varying external current we multiply \lstinline|I_ex| in \lstinline|neuron_eqs| on~page~\pageref{eq:neuron-gi} by  \lstinline|stimulus = TimedArray([1.0, 1.2, 1.0, 1.0], dt=2*second)|.
+Neurons are placed on a square lattice of size $3.75 \times \SI{3.75}{\milli m}$ at \SI{50}{\micro m} distance from each other. For $t=0$ we set $C = I = \SI{0.01}{\micro \Molar}$. 
+
+\section{Model parameters used in the simulations}\label{apx:parameters}
+The following tables report constants that correspond to the model parameters used in the simulations presented in this chapter.
+Simulation-specific parameters are marked by `$\dagger$' and are reported in respective figure captions instead.
+
+\subsection{Neurons and synapses}\label{Tab:neu-syn}
+{\footnotesize
+\noindent
+%%% Table 1
+\begin{tabularx}{\textwidth}{l l r l X}
+\hline
+Symbol & Name in code & Value & Units & Description\\
+\hline
+\multicolumn{5}{c}{\textit{Neuron parameters}}\\
+\hline
+$C_m$ 	   & \lstinline|C_m|   & 198  &\si{\pico F}  & Membrane capacitance \\
+$E_{l}$    & \lstinline|E_l|   & -60  &\si{\milli V} & Leak reversal potential\\
+$g_{l}$    & \lstinline|g_l|   & 9.99 &\si{\nano S}  & Leak conductance\\
+$I_{ex}$   & \lstinline|I_ex|  & $\dagger$   &\si{\pico A} & External current\\
+$V_{r}$    & \lstinline|V_r|   & -60  &\si{\milli V} & Reset potential\\
+$V_{\theta}$ & \lstinline|V_th|& -50  &\si{\milli V} & Firing threshold\\
+$\tau_{r}$ & \lstinline|tau_r| & 5    &\si{\milli s} & Refractory period\\
+\hline
+\multicolumn{5}{c}{\textit{Synapse parameters}}\\
+\hline
+$\Omega_d$   & \lstinline|Omega_d|   & 2       & \si{s^{-1}}  & Synaptic depression rate\\
+$\Omega_f$   & \lstinline|Omega_f|   & 3.33    & \si{s^{-1}}  & Synaptic facilitation rate\\
+$U^*_{0}$ ($U_0$) & \lstinline|U_0__star| (\lstinline|U_0|) & 0.6 &-- & Resting synaptic release probability\\
+$Y_T$      & \lstinline|Y_T|   & 500  &\si{\milli \Molar}& Total vesicular neurotransmitter concentration\\
+$\rho_c$   & \lstinline|rho_c| & 0.005&--            & Synaptic vesicle-to-extracellular space volume ratio\\
+$\Omega_c$   & \lstinline|Omega_c|   & 40      & \si{s^{-1}}  & Neurotransmitter clearance rate\\
+$w_e$      & \lstinline|w_e|   & 50   &\si{\pico S}  & Excitatory synaptic conductance\\
+$w_i$      & \lstinline|w_i|   & 1    &\si{\nano S}  & Inhibitory synaptic conductance\\
+$\tau_e$   & \lstinline|tau_e| & 5    &\si{\milli s} & Excitatory synaptic time constant\\
+$\tau_i$   & \lstinline|tau_i| & 10   &\si{\milli s} & Inhibitory synaptic time constant\\
+$E_e$      & \lstinline|E_e|   & 0    &\si{\milli V} & Excitatory synaptic reversal potential\\
+$E_i$      & \lstinline|E_i|   & -80  &\si{\milli V} & Inhibitory synaptic reversal potential\\
+\hline
+\multicolumn{5}{c}{\textit{Presynaptic receptors}}\\
+\hline
+$O_{G}$        & \lstinline|O_G|       & 1.5     &\si{\micro \Molar^{-1}.s^{-1}} & Agonist binding (activating) rate\\
+$\Omega_{G}$   & \lstinline|Omega_G|   & 0.5     &\si{min^{-1}} & Agonist release (deactivating) rate\\
+\hline
+\end{tabularx}
+}
+
+\subsection{Astrocytes}\label{Tab:astrocytes}
+{\footnotesize
+\noindent
+\begin{tabularx}{\textwidth}{l l r l X}
+\hline
+Symbol 	& Name in code	& Value	& Units & Description\\
+\hline
+\multicolumn{5}{c}{\textit{Calcium-induced Ca$^{2+}$ release}}\\
+\hline
+$C_T$ 	  & \lstinline|C_T|     & 2 	& \si{\micro \Molar} 	    &  Total cell free Ca$^{2+}$ content\\
+$\rho_A$  & \lstinline|rho_A|   & 0.18  & --                        &  ER-to-cytoplasm volume ratio\\
+$d_{1}$ & \lstinline|d_1| & 0.13	&\si{\micro \Molar} 	&  IP$_3$ dissociation constant\\
+$d_{2}$ & \lstinline|d_2| & 1.05	&\si{\micro \Molar} 	&  Ca$^{2+}$ inactivation dissociation constant\\
+$d_{3}$ & \lstinline|d_3| & 0.9434	&\si{\micro \Molar} 	&  IP$_3$ dissociation constant\\
+$d_{5}$ & \lstinline|d_5| & 0.08	&\si{\micro \Molar} 	&  Ca$^{2+}$ activation dissociation constant\\
+$O_{2}$ & \lstinline|O_2| & 0.2		&\si{\micro \Molar.s^{-1}} &  IP$_3$R  binding rate for Ca$^{2+}$ inhibition\\
+$\Omega_C$& \lstinline|Omega_C| & 6		& \si{s^{-1}} 				&  Maximal rate of Ca$^{2+}$ release by IP$_3$Rs\\
+$\Omega_L$& \lstinline|Omega_L| & 0.1	& \si{s^{-1}} 				&  Maximal rate of Ca$^{2+}$ leak from the~ER\\
+$O_P$ 	  & \lstinline|O_P|     & 0.9	& \si{\micro \Molar.s^{-1}} &  Maximal Ca$^{2+}$ uptake rate by SERCAs\\
+$K_P$ 	  & \lstinline|K_P|     & 0.05	& \si{\micro \Molar}        &  Ca$^{2+}$ affinity of SERCAs\\
+\hline
+\multicolumn{5}{c}{\textit{IP$_3$ signaling}}\\
+\hline
+$O_\beta$ 	& \lstinline|O_beta|  & $\dagger$	&\si{\micro \Molar.s^{-1}}   & Maximal rate of IP$_3$ production by PLC$\upbeta$\\
+$O_\delta$  & \lstinline|O_delta|  & 0.6 & \si{\micro \Molar.s^{-1}}  & Maximal rate of IP$_3$ production by PLC$\updelta$\\
+$\kappa_\delta$ & \lstinline|kappa_delta| &1.5 &\si{\micro \Molar}    & Inhibition constant of PLC$\updelta$ by IP$_3$\\
+$K_\delta$ & \lstinline|K_delta|  & 0.1 		& \si{\micro \Molar} &  Ca$^{2+}$ affinity of PLC$\updelta$\\
+$O_{3K}$   & \lstinline|O_3K|     & 4.5			&\si{\micro \Molar.s^{-1}} &  Maximal rate of IP$_3$ degradation by IP$_3$-3K\\
+$K_{3K}$   & \lstinline|K_3K|     & 1			&\si{\micro \Molar} &  IP$_3$ affinity of IP$_3$-3K\\
+$K_D$ 	   & \lstinline|K_D| 	  & 0.7			&\si{\micro \Molar} &  Ca$^{2+}$ affinity of IP$_3$-3K\\
+$\Omega_{5P}$ & \lstinline|Omega_5P| & 0.05		&\si{s^{-1}} 	    &  Maximal rate of IP$_3$ degradation by IP~5P\\
+\hline
+\multicolumn{5}{c}{\textit{Metabotropic receptor kinetics}}\\
+\hline
+$O_N$ 		& \lstinline|O_N| 	  & 0.3	& \si{\micro \Molar^{-1}.s^{-1}} & Agonist binding rate\\
+$\Omega_N$ 	& \lstinline|Omega_N| & 0.5	& \si{s^{-1}} 		 & Maximal inactivation rate\\
+$K_{KC}$ 	& \lstinline|K_KC| 	  & 0.5 & \si{\micro \Molar} & Ca$^{2+}$ affinity of PKC\\
+$\zeta$ 	& \lstinline|zeta| 	  & 10  & --                 & Maximal reduction of receptor affinity by PKC\\
+\hline
+\multicolumn{5}{c}{\textit{IP$_3$ stimulation \& diffusion}}\\
+\hline
+$F_{ex}$   & \lstinline|F_ex| 	  & 2			&\si{\micro \Molar.s^{-1}} &  Maximal exogenous IP$_3$ flow\\
+$I_{bias}$ & \lstinline|I_bias|   & $\dagger$	&\si{\micro \Molar} 	   &  External IP$_3$ drive\\
+$F$ 	   & \lstinline|F| 		  & 0.09		&\si{\micro \Molar.s^{-1}} &  GJC IP$_3$ permeability\\
+$I_\theta$ & \lstinline|I_Theta|  & 0.3			&\si{\micro \Molar} 	   &  Threshold gradient for IP$_3$ diffusion\\
+$\omega_I$ & \lstinline|omega_I|  & 0.05		&\si{\micro \Molar} 	   &  Scaling factor of diffusion\\
+\hline
+\multicolumn{5}{c}{\textit{Gliotransmission}}\\
+\hline
+$C_\theta$ & \lstinline|C_Theta| & 0.5	&\si{\micro \Molar} & Ca$^{2+}$ threshold for exocytosis\\
+$G_T$ 	   & \lstinline|G_T| 	 & 200	&\si{\milli \Molar} & Total vesicular gliotransmitter concentration\\
+$\Omega_A$ & \lstinline|Omega_A| & 0.6 	&\si{s^{-1}} 		& Gliotransmitter recycling rate\\
+$U_A$      & \lstinline|U_A| 	 & 0.6  & --		        & Gliotransmitter release probability\\
+$\rho_e$   & \lstinline|rho_e|   & 0.00065 &--			    & Astrocytic vesicle-to-extracellular volume ratio\\
+$\Omega_e$ & \lstinline|Omega_e| & 60	&\si{s^{-1}} 		& Gliotransmitter clearance rate\\
+$\alpha$   & \lstinline|alpha|   & 0 	& --				& Gliotransmission nature\\
+\hline
+\end{tabularx}
+}
+
+\end{appendices}
+
+\newpage
+\bibliography{references}
+
+\end{document}
+
