@@ -1,0 +1,10 @@
+Hull 1.0:
+This program computes convex hulls, Delaunay triangulations, alpha shapes,
+and Voronoi volumes, using an incremental algorithm and exact arithmetic.
+
+To install, type "make", possibly after adjusting the Makefile.
+
+Author:
+Ken Clarkson,
+clarkson@research.bell-labs.com,
+http://cm.bell-labs.com/who/clarkson.
