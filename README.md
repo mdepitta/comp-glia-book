@@ -3,8 +3,19 @@
 The repo contains code used for simulations and figures in the book "Computational Glioscience," De Pitta' M. and Berry, H. eds., Springer (expected 2018). The repo contains different folders accoridng to the chapters in the book. Content of each folder is detailed as following.
 
 ---------------------------------------------------------------------------------
-# Ch6.DePitta
+# Ch1.DePittaBerry
+
+The `code` folder contains the Jupyter notebook file `scale_estimations.ipynb` for estimation of different spatial and temporal scales of glial signaling.
+
+Software requirements:
+- Jupyter notebook;
+- Python 2.7 modules: `numpy`, `scipy`, `matplotlib`;
+
+Data for scale estimation were extracted from figures in the literature by WebPlot Digitalizer (`https://automeris.io/WebPlotDigitizer/`).
+Extracted data and original figures are provided in `data` and `figures` folders respectively.
+
 ---------------------------------------------------------------------------------
+# Ch6.DePitta
 
 This folder contains Python 2.7 and C++11 codes to reproduce simulations and figures of Chapter 6. The following software must be preliminarly installed in order to run the code:
 
@@ -27,7 +38,6 @@ The `pycustommodules` folder contains several custom Python modules invoked by t
 
 ---------------------------------------------------------------------------------
 # Ch8.Lallouette
----------------------------------------------------------------------------------
 
 The folder contains Python 3 and C++ code to generate figures and simulations of Chapter 8.
 
@@ -39,7 +49,6 @@ The `src` folder contains the C++ kernel files to run the network models. These 
 
 ---------------------------------------------------------------------------------
 # Ch19.Stimberg
----------------------------------------------------------------------------------
 
 The folder contains Brian 2.x code to reproduce simulations and figures of Chapter 19. 
 
