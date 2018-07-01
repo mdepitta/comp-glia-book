@@ -1,0 +1,8 @@
+axes.linewidth : 1.5
+xtick.labelsize : 12
+ytick.labelsize : 12
+axes.labelsize : 16
+lines.linewidth : 2
+lines.markersize : 2
+legend.frameon : True
+legend.fontsize : 10

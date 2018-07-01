@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="23b9e92e-e95b-4cf3-b689-91c336ab7838" name="Default" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="astrocyte_models.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/astrocyte_models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="388">
+              <caret line="502" column="41" selection-start-line="502" selection-start-column="41" selection-end-line="502" selection-end-column="41" />
+              <folding>
+                <element signature="e#0#282#1" />
+                <element signature="e#710#789#0" />
+                <element signature="e#1049#1097#0" />
+                <element signature="e#1099#1178#0" />
+                <element signature="e#1317#1462#1" />
+                <element signature="e#1942#2054#0" />
+                <element signature="e#2106#2974#0" />
+                <element signature="e#2106#2263#1" />
+                <element signature="e#2336#2615#0" />
+                <element signature="e#2846#2958#0" />
+                <element signature="e#3011#4144#0" />
+                <element signature="e#3011#3164#1" />
+                <element signature="e#3169#3259#0" />
+                <element signature="e#3429#3786#0" />
+                <element signature="e#4016#4128#0" />
+                <element signature="e#4182#5124#0" />
+                <element signature="e#4182#4332#1" />
+                <element signature="e#4483#4764#0" />
+                <element signature="e#4996#5108#0" />
+                <element signature="e#5170#6747#0" />
+                <element signature="e#5170#5285#0" />
+                <element signature="e#5379#5604#0" />
+                <element signature="e#5637#5812#0" />
+                <element signature="e#5848#6127#0" />
+                <element signature="e#6159#6509#0" />
+                <element signature="e#6749#6828#0" />
+                <element signature="e#6962#8737#0" />
+                <element signature="e#6962#7109#1" />
+                <element signature="e#7129#7200#0" />
+                <element signature="e#7220#7539#0" />
+                <element signature="e#7551#7835#0" />
+                <element signature="e#7883#8130#0" />
+                <element signature="e#8779#10535#0" />
+                <element signature="e#8779#8935#1" />
+                <element signature="e#8953#9024#0" />
+                <element signature="e#9044#9363#0" />
+                <element signature="e#9375#9659#0" />
+                <element signature="e#9701#9941#0" />
+                <element signature="e#10586#12345#0" />
+                <element signature="e#10586#10734#1" />
+                <element signature="e#10752#10823#0" />
+                <element signature="e#10843#11162#0" />
+                <element signature="e#11174#11467#0" />
+                <element signature="e#11509#11749#0" />
+                <element signature="e#12390#14188#0" />
+                <element signature="e#12390#12532#1" />
+                <element signature="e#12552#12623#0" />
+                <element signature="e#12643#12962#0" />
+                <element signature="e#12974#13269#0" />
+                <element signature="e#13317#13564#0" />
+                <element signature="e#14190#14288#0" />
+                <element signature="e#14435#19089#0" />
+                <element signature="e#14478#14968#0" />
+                <element signature="e#15006#15350#0" />
+                <element signature="e#15390#15621#0" />
+                <element signature="e#15671#15947#0" />
+                <element signature="e#16061#17459#0" />
+                <element signature="e#16639#17459#0" />
+                <element signature="e#16962#17104#0" />
+                <element signature="e#17158#17459#0" />
+                <element signature="e#17514#18320#0" />
+                <element signature="e#17545#17949#0" />
+                <element signature="e#17586#17821#0" />
+                <element signature="e#17679#17821#0" />
+                <element signature="e#18013#18203#0" />
+                <element signature="e#18376#19022#0" />
+                <element signature="e#18407#18811#0" />
+                <element signature="e#18448#18683#0" />
+                <element signature="e#18541#18683#0" />
+                <element signature="e#19055#19089#0" />
+                <element signature="e#19122#19221#0" />
+                <element signature="e#19663#19676#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/astrocyte_models.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="27" />
+    <option name="width" value="1280" />
+    <option name="height" value="773" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="code" type="b2602c69:ProjectViewProjectNode" />
+              <item name="code" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="astrocyte_models" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="code" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/astrocyte_models.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.astrocyte_models" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="23b9e92e-e95b-4cf3-b689-91c336ab7838" name="Default" comment="" />
+      <created>1529071187065</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1529071187065</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="27" width="1280" height="773" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3292683" />
+      <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Python Console" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/astrocyte_models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="502" column="41" selection-start-line="502" selection-start-column="41" selection-end-line="502" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#282#1" />
+            <element signature="e#710#789#0" />
+            <element signature="e#1049#1097#0" />
+            <element signature="e#1099#1178#0" />
+            <element signature="e#1317#1462#1" />
+            <element signature="e#1942#2054#0" />
+            <element signature="e#2106#2974#0" />
+            <element signature="e#2106#2263#1" />
+            <element signature="e#2336#2615#0" />
+            <element signature="e#2846#2958#0" />
+            <element signature="e#3011#4144#0" />
+            <element signature="e#3011#3164#1" />
+            <element signature="e#3169#3259#0" />
+            <element signature="e#3429#3786#0" />
+            <element signature="e#4016#4128#0" />
+            <element signature="e#4182#5124#0" />
+            <element signature="e#4182#4332#1" />
+            <element signature="e#4483#4764#0" />
+            <element signature="e#4996#5108#0" />
+            <element signature="e#5170#6747#0" />
+            <element signature="e#5170#5285#0" />
+            <element signature="e#5379#5604#0" />
+            <element signature="e#5637#5812#0" />
+            <element signature="e#5848#6127#0" />
+            <element signature="e#6159#6509#0" />
+            <element signature="e#6749#6828#0" />
+            <element signature="e#6962#8737#0" />
+            <element signature="e#6962#7109#1" />
+            <element signature="e#7129#7200#0" />
+            <element signature="e#7220#7539#0" />
+            <element signature="e#7551#7835#0" />
+            <element signature="e#7883#8130#0" />
+            <element signature="e#8779#10535#0" />
+            <element signature="e#8779#8935#1" />
+            <element signature="e#8953#9024#0" />
+            <element signature="e#9044#9363#0" />
+            <element signature="e#9375#9659#0" />
+            <element signature="e#9701#9941#0" />
+            <element signature="e#10586#12345#0" />
+            <element signature="e#10586#10734#1" />
+            <element signature="e#10752#10823#0" />
+            <element signature="e#10843#11162#0" />
+            <element signature="e#11174#11467#0" />
+            <element signature="e#11509#11749#0" />
+            <element signature="e#12390#14188#0" />
+            <element signature="e#12390#12532#1" />
+            <element signature="e#12552#12623#0" />
+            <element signature="e#12643#12962#0" />
+            <element signature="e#12974#13269#0" />
+            <element signature="e#13317#13564#0" />
+            <element signature="e#14190#14288#0" />
+            <element signature="e#14435#19089#0" />
+            <element signature="e#14478#14968#0" />
+            <element signature="e#15006#15350#0" />
+            <element signature="e#15390#15621#0" />
+            <element signature="e#15671#15947#0" />
+            <element signature="e#16061#17459#0" />
+            <element signature="e#16639#17459#0" />
+            <element signature="e#16962#17104#0" />
+            <element signature="e#17158#17459#0" />
+            <element signature="e#17514#18320#0" />
+            <element signature="e#17545#17949#0" />
+            <element signature="e#17586#17821#0" />
+            <element signature="e#17679#17821#0" />
+            <element signature="e#18013#18203#0" />
+            <element signature="e#18376#19022#0" />
+            <element signature="e#18407#18811#0" />
+            <element signature="e#18448#18683#0" />
+            <element signature="e#18541#18683#0" />
+            <element signature="e#19055#19089#0" />
+            <element signature="e#19122#19221#0" />
+            <element signature="e#19663#19676#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
