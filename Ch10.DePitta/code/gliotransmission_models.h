@@ -1,15 +1,11 @@
 /*
-astrocyte_models.h
-HEADER file for astrocyte_models.cpp
-Contains class, structure and function declaration to simulate several astrocyte
-models.
-
-v2.0
-Implemented integration by GSL routines, and added LR model + PKC model.
-Maurizio De Pitta', INRIA Rhone-Alpes, November 3rd, 2017.
+gliotransmission_models.h
+HEADER file for gliotransmission_models.cpp
+Contains class, structure and function declaration to simulate several models of gliotransmission.
 
 v1.0
-Maurizio De Pitta', The University of Chicago, February 28th, 2015.
+Maurizio De Pitta', Basque Center of Applied Mathematics, Bilbao, Bizkaia, Spain
+June  2018.
 */
 
 #include <stdlib.h>
