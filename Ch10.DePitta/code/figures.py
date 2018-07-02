@@ -1737,14 +1737,14 @@ def cv_ux(nus_, u0_, omd_, omf_):
     xi_u  = lambda nus, u0, omd, omf : (nus*(omf*(1-u0))**2)/((2*omf+u0*(2-u0)*nus)*(omf+nus)**2)
     xi_x  = lambda nus, u0, omd, omf : nus*(u_inf(nus, u0, omd, omf)**2)/(2*omd + nus*(u_inf(nus, u0, omd, omf)*(2-u_inf(nus, u0, omd, omf))))
 
-    return xi_u(nus_,u0_,omd_,omf_)*xi_x(nus_,u0_,omd_,omf_)
+    return np.sqrt(xi_u(nus_,u0_,omd_,omf_)*xi_x(nus_,u0_,omd_,omf_))
 
 def cv_xg(nua_, ua_, oma_, js_, omg_):
     beta = np.exp(-js_*ua_)
     xi_xa = lambda nua, ua, oma : nua*(ua**2)/(2*oma + nua*(ua*(2-ua)))
     xi_gs = lambda nua, omg : (omg**2)/(omg+(1-beta)*nua)/(omg+(1+beta)*nua)
 
-    return xi_xa(nua_, ua_, oma_)*xi_gs(nua_,omg_)
+    return np.sqrt(xi_xa(nua_, ua_, oma_)*xi_gs(nua_,omg_))
 
 def cv_check():
     # Generte substrates
