@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7bf96a41-6e02-45bb-a723-30a88e7e5cfe" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/figures.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/figures.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycustommodules/solvers/solver_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycustommodules/solvers/solver_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycustommodules/spk_generators.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycustommodules/spk_generators.py" afterDir="false" />
-    </list>
+    <list default="true" id="7bf96a41-6e02-45bb-a723-30a88e7e5cfe" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,9 +12,10 @@
     <session id="-1495023904">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
+          <entry key="project.closed" value="2" />
+          <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.3" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.opened" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -232,9 +228,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="287">
           <caret line="1809" column="16" lean-forward="true" selection-start-line="1809" selection-start-column="16" selection-end-line="1809" selection-end-column="16" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -242,9 +235,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="131">
           <caret line="15" column="42" lean-forward="true" selection-start-line="15" selection-start-column="42" selection-end-line="15" selection-end-column="42" />
-          <folding>
-            <element signature="e#304#322#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -252,9 +242,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
           <caret line="23" column="31" lean-forward="true" selection-start-line="23" selection-end-line="23" selection-end-column="31" />
-          <folding>
-            <element signature="e#6804#6915#0" />
-          </folding>
         </state>
       </provider>
     </entry>

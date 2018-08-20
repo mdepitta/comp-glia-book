@@ -496,7 +496,7 @@ def syn_filtering(sim=True,data_dir='../data/',fig_dir='../../Figures/',format='
         p['fac'] = pars
         time['fac'],sol['fac'] = step_simulation(pars, rate, twin, Nsyn, gtr=False,dt=1e-3)
         # Transient saving of data
-        svu.savedata([time,sol,gammas,p],'syn_filter.pkl')
+        svu.savedata([time,sol,gammas,p],data_dir+'syn_filter.pkl')
 
         print "2. Simulation facilitating synapse + release-increasing gliotransmission"
         pars = gtm.asn_parameters(Ou=1e2, Ku=0.1, taue=1./30., Gtot=150,
@@ -504,14 +504,14 @@ def syn_filtering(sim=True,data_dir='../data/',fig_dir='../../Figures/',format='
         p['fac_ri'] = pars
         time['fac_ri'],sol['fac_ri'],gammas['fac_ri'] = step_simulation(pars, rate, twin, Nsyn, dt=1e-3,gtr=True, gres=gres)
         # Transient saving of data
-        svu.savedata([time,sol,gammas,p],'syn_filter.pkl')
+        svu.savedata([time,sol,gammas,p],data_dir+'syn_filter.pkl')
 
         print "3. Simulation depressing synapse"
         pars = gtm.exocytosis_parameters(u0=0.5,taud=0.5,tauf=0.3)
         p['dep'] = pars
         time['dep'],sol['dep'] = step_simulation(pars, rate, twin, Nsyn, gtr=False,dt=1e-3)
         # Transient saving of data
-        svu.savedata([time,sol,gammas,p],'syn_filter.pkl')
+        svu.savedata([time,sol,gammas,p],data_dir+'syn_filter.pkl')
 
         # time,sol,p = svu.loaddata('syn_filter.pkl')
         print "4. Simulation depressing synapse + release-decreasing gliotransmission"
@@ -520,12 +520,12 @@ def syn_filtering(sim=True,data_dir='../data/',fig_dir='../../Figures/',format='
         p['dep_rd'] = pars
         time['dep_rd'],sol['dep_rd'],gammas['dep_rd'] = step_simulation(pars, rate, twin, Nsyn, dt=1e-3,gtr=True, gres=gres)
         # Final saving of data
-        svu.savedata([time,sol,gammas,p],'syn_filter.pkl')
+        svu.savedata([time,sol,gammas,p],data_dir+'syn_filter.pkl')
     # -------------------------------------------------------------------------------------------------------------------
     # Effective plotting
     # -------------------------------------------------------------------------------------------------------------------
     # Load data
-    time, sol, gammas, p = svu.loaddata('syn_filter.pkl')
+    time, sol, gammas, p = svu.loaddata(data_dir+'syn_filter.pkl')
     # Add zero point in all plots
     t0 = -1
     tstep = np.r_[-1,0.,np.cumsum(twin)]
@@ -1797,17 +1797,17 @@ if __name__ == "__main__":
     # ## Figure 3
     # full_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
     # # full_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-    #
-    # ## Figure 4
-    # syn_filtering(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-    # # syn_filtering(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-    #
+
+    ## Figure 4
+    syn_filtering(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    # syn_filtering(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+
     # ## Figure 5
     # pp_plasticity(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
     # # pp_plasticity(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-
-    ## Figure 6
-    mf_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    #
+    # ## Figure 6
+    # mf_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
     # # mf_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
     #
     # ## Figure 7
