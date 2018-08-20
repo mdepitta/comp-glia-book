@@ -13,8 +13,9 @@ Maurizio De Pitta', The University of Chicago, March 1st, 2015.
 import numpy as np
 from scipy import *
 import sys, os
-sys.path.append(os.path.join(os.path.expanduser('~'),'Ch6.DePitta.GPCR/pycustommodules'))
-import general_utils as gu
+base_dir = '/Ch10.DePitta/pycustommodules'
+sys.path.append(os.path.join(os.path.expanduser('~'),base_dir))
+import pycustommodules.general_utils as gu
 
 
 def solver_opts(method='euler',**kwargs):

@@ -1790,35 +1790,35 @@ if __name__ == "__main__":
     data_dir = '../data/'
     fig_dir = '../Figures/'
     
-    ## Figure 2
-    model_compartments(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-    # model_compartments(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-
-    ## Figure 3
-    full_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-    # full_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-
-    ## Figure 4
-    syn_filtering(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-    # syn_filtering(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-
-    ## Figure 5
-    pp_plasticity(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
-    # pp_plasticity(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    # ## Figure 2
+    # model_compartments(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    # # model_compartments(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    #
+    # ## Figure 3
+    # full_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    # # full_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    #
+    # ## Figure 4
+    # syn_filtering(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    # # syn_filtering(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    #
+    # ## Figure 5
+    # pp_plasticity(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
+    # # pp_plasticity(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='svg', dpi=600)
 
     ## Figure 6
     mf_model(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-    # mf_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-
-    ## Figure 7
-    mf_brp(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-    # mf_brp(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
-
-    ## Figure 8
-    pswitch_domains(dir=fig_dir,format='svg',dpi=1200)
-
-    ## Figure 9
-    gammas_error(fig_dir=fig_dir, format='eps', dpi=600)
-
-    ## Check validity of MF
-    cv_check()
+    # # mf_model(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    #
+    # ## Figure 7
+    # mf_brp(sim=True, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    # # mf_brp(sim=False, data_dir=data_dir, fig_dir=fig_dir, format='pdf', dpi=600)
+    #
+    # ## Figure 8
+    # pswitch_domains(dir=fig_dir,format='svg',dpi=1200)
+    #
+    # ## Figure 9
+    # gammas_error(fig_dir=fig_dir, format='eps', dpi=600)
+    #
+    # ## Check validity of MF
+    # cv_check()

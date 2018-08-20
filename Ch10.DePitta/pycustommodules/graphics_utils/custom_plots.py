@@ -1,9 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-import sys
-sys.path.append('../')
-import general_utils as gu
+from .. import general_utils as gu
 
 def stp_indexes(u,r):
     '''

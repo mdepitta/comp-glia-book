@@ -118,19 +118,22 @@ def isi_dist(tspk,bins=10,range=None):
 
 def thin_isi(isi_homog,tau_r,N_spikes,rate,T_rate):
     """
-    Given an homogeneous Poisson train defined by the sequence of
-    inter-event intervals `isi_homog`, return the corresponding sequence
-    when a non-homogeneous  The first argument is a list or array of
-    inter-spike intervals, assumed to correspond to a homogeneous Poisson
-    train. The second argument is the time constant of the recovery
-    process, in the same units as the ISIs.
+    Thinning of homogeneous Poisson process to generate inhomogeneous Poisson process.
 
     Input arguments:
-    - isi_homog  :
-    - tau_r      :
-    - N_spikes   :
-    - rate       :
-    - T_rate     :
+    - isi_homog  : Array-like of ISIs of Poisson process at max(rate)
+    - tau_r      : Float. Refractory period.
+    - N_spikes   : Int. Number of spikes used to compute ISIs.
+    - rate       : Array-like of floats for rates (time ordered)
+    - T_rate     : Array-like of floats for durations intervals of each rate value w.r.t. preceding one.
+
+    NOTE: This method can be used also to generate inhomogenous Poisson processes for ANY time-varying rate.
+    As far as rate and T_rate are properly given.
+
+    v3.0
+    Corrected handling of absolute refractory (meant as case of inhomogenous Poisson process where the rate is zero for
+    tau_r right after each spike. Improved array-based coding.
+    Maurizio De Pitta', Basque Center for Applied Mathematics, August 19, 2018.
 
     v2.0
     Added handling of multiple rates and non-homogeneous Poisson processes.
@@ -140,33 +143,22 @@ def thin_isi(isi_homog,tau_r,N_spikes,rate,T_rate):
     Maurizio De Pitta', The University of Chicago, September 9th, 2014.
     """
 
-    # Effective Poisson rate in the presence of refractoriness
-    f_eff = lambda f,trp : f/(1.+f*trp)
+    tspk_homog = cumsum(isi_homog)  # Spike sequence at maximum rate
 
-    sp_times_homog = cumsum(isi_homog)  # Spike sequence at maximum rate
-
-    sp_times = []
-    sp_times.append(sp_times_homog[0])  # 1st spike
-    last_spike = sp_times[-1]
-
-    x = random.rand(N_spikes - 1)
-    j = 0
-    Nr = size(rate)
-    rate_max = f_eff(amax(rate),tau_r)
-    for i,t in enumerate(sp_times_homog[1:]):
-        if last_spike>T_rate[j]:
-            if j<Nr-1:
-                j +=1
-            else:
-                break
-        z = f_eff(rate[j],tau_r)/rate_max
-        # Thinning
-        if (x[i] < z):
-            sp_times.append(sp_times_homog[i + 1])
-            last_spike = sp_times[-1]
-
-    sp_times = asarray(sp_times,dtype=float)  # Convert list to array
-    isi = diff(sp_times)                      # Difference between successive spikes
+    x = random.rand(N_spikes)
+    rate_ = rate[0]*ones(N_spikes)
+    if tau_r>0:
+        index = logical_and(tspk_homog<T_rate[0],isi_homog<tau_r)
+        rate_[index] = 0.0
+    if len(rate)>1:
+        for i,t in enumerate(T_rate[:-1]):
+            rate_[tspk_homog>=t] = rate[i+1]
+            if tau_r > 0:
+                index = logical_and(logical_and(tspk_homog>=t,tspk_homog<T_rate[i+1]),isi_homog<tau_r)
+                rate_[index] = 0.0
+    z = rate_/amax(rate_)
+    tspk_ = tspk_homog[less(x,z)]
+    isi = diff(tspk_)                      # Difference between successive spikes
     return isi
 
 def spk_poisson(T=10,N=1,**kwargs):
@@ -178,17 +170,19 @@ def spk_poisson(T=10,N=1,**kwargs):
 
     Input arguments:
     - T        : period [0,T] for the spike train
-    - N        : number of (presynaptic) neurons
+    - N        : number of neurons
     - **kwargs :
         - rate : average rate of Poisson spike [Hz]
         - trp  : refractory period [s]
 
-    'rate'and 'T' can also be vectors of size n, in this case multiple rates are considered in intervals
-    of total duration T_1, T_2... etc.
-
     Output:
     - tspk     : spike train instants (sorted) with corresponding neuron
 
+    v1.1
+    Corrected minor bug in handling tau_r and rate array.
+    Maurizio De Pitta', Basque Center of Applied Mathematics, August 19, 2018.
+
+    v1.0
     Maurizio De Pitta', The University of Chicago, September 9th, 2014.
     """
     pars = {'rate': 100, 'trp': 2e-3}
@@ -210,12 +204,12 @@ def spk_poisson(T=10,N=1,**kwargs):
         # For an homogeneous Poisson process the following works. For non-homogeneous processes then it will prepare it
         # for thinning
         isi_homog = -log(random.rand(N_spikes))/amax(pars['rate'])  # Random ISIs at maximum rate
-        if (pars['trp']>0)or(size(pars['rate']>1)):
-            isi = cut_isi(thin_isi(isi_homog,pars['trp'],N_spikes,pars['rate'],cumsum(T)),sum(T))
+        if (pars['trp']>0)or(size(pars['rate'])>1):
+            tspk = cut_isi(thin_isi(isi_homog,pars['trp'],N_spikes,pars['rate'],cumsum(T)),sum(T))
         else:
-            isi = cut_isi(isi_homog,sum(T))
-        spk_train = concatenate((spk_train,isi))
-        indexes = concatenate((indexes,i*ones(isi.size)))
+            tspk = cut_isi(isi_homog,sum(T))
+        spk_train = concatenate((spk_train,tspk))
+        indexes = concatenate((indexes,i*ones(tspk.size)))
     # Sort spikes
     si = spk_train.argsort()
     # Stack and sort
