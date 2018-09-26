@@ -131,13 +131,13 @@ fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6.26894, 6.26894 * 0.66),
 scaling = 1.2
 step = 10
 ax.plot(astro_mon.t/second,
-        (astro_mon.C[0:N_astro//2-1].T/astro_mon.C.max() +
-         np.arange(N_astro//2-1)*scaling), color='black')
-ax.plot(astro_mon.t/second, (astro_mon.C[N_astro//2:].T/astro_mon.C.max() +
-                             np.arange(N_astro//2, N_astro)*scaling),
+        (astro_mon.C[0:N_astro//2].T/astro_mon.C.max() +
+         np.arange(N_astro//2)*scaling), color='black')
+ax.plot(astro_mon.t/second, (astro_mon.C[N_astro//2+1:].T/astro_mon.C.max() +
+                             np.arange(N_astro//2+1, N_astro)*scaling),
         color='black')
-ax.plot(astro_mon.t/second, (astro_mon.C[N_astro//2-1].T/astro_mon.C.max() +
-                             np.arange(N_astro//2-1, N_astro//2)*scaling),
+ax.plot(astro_mon.t/second, (astro_mon.C[N_astro//2].T/astro_mon.C.max() +
+                             N_astro//2 * scaling),
         color='C0')
 ax.set(xlim=(0., duration/second), ylim=(0, (N_astro+1.5)*scaling),
        xticks=np.arange(0., duration/second, 500), xlabel='time (s)',
