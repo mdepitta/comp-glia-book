@@ -1,6 +1,6 @@
 # Overview
 
-The repo contains code used for simulations and figures in the book "Computational Glioscience," De Pitta' M. and Berry, H. eds., Springer (expected 2018). The repo contains different folders accoridng to the chapters in the book. Content of each folder is detailed as following.
+The repo contains code used for simulations and figures in the book "Computational Glioscience," De Pitta' M. and Berry, H. eds., (Springer 2019). The repo contains different folders according to the chapters in the book. Content of each folder is detailed as following.
 
 ---------------------------------------------------------------------------------
 # Ch3.Timofeeva
