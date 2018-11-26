@@ -1,0 +1,49 @@
+#Travelling waves in the reduced DYK model 
+
+#Parameters 
+par p=0.7
+par s=2 
+
+#Initial conditions 
+c(0)=0.2944 
+w(0)=0 
+y(0)=0.6431 
+
+#Fixed variables 
+k1=400
+k2=0.2
+k3=400
+k4=0.2
+k5=20 
+km1=52
+km2=0.21
+km3=377.36
+km4=0.029
+km5=1.65
+kp=0.1
+D=1
+caer=1 
+r1=20
+r2=0.004
+r3=1.2 
+bigK1=km1/k1 
+bigK3=km3/k3 
+bigK5=km5/k5 
+bigK2=km2/k2 
+bigK4=km4/k4 
+
+#Equations 
+dc/dt=w 
+dw/dt=(s*w-(r1*x110^3+r2)*(caer-c)+r3*c^2/(c^2+kp^2))/D
+dy/dt=((hinf(c,p)-y)/tau(c,p))/s 
+
+#Functions 
+alfa(c,p)=(km4*bigK2*bigK1+km2*p*bigK4)*c/(bigK4*bigK2*(p+bigK1)) 
+betta(c,p)=(km2*p+km4*bigK3)/(p+bigK3) 
+x110=p*c*y/((p+bigK1)*(c+bigK5)) 
+hinf(c,p)=betta(c,p)/(alfa(c,p)+betta(c,p)) 
+tau(c,p)=1/(alfa(c,p)+betta(c,p)) 
+
+@ meth=cvode,dt=0.001,total=100,maxstore=10000000,bounds=1000,xp=t,xlo=0,xhi=100,yp=c,ylo=0,yhi=0.7
+
+done

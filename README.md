@@ -3,7 +3,21 @@
 The repo contains code used for simulations and figures in the book "Computational Glioscience," De Pitta' M. and Berry, H. eds., Springer (expected 2018). The repo contains different folders accoridng to the chapters in the book. Content of each folder is detailed as following.
 
 ---------------------------------------------------------------------------------
-# Ch4.DePitta
+# Ch3.Timofeeva
+
+This folder contains codes to reproduce simulations and figures in Chapter 3. The following software must be preliminarly installed in order to run the code:
+
+- `Matlab` R2012 (or higher)
+- `XPPAUT` (`http://www.math.pitt.edu/~bard/xpp/xpp.html`) 
+
+The folder `DYK` includes the `ODE` files for `XPPAUT` to study bifurcations of the De Young and Keizer model for IP3 receptors.
+
+The folder `FDF1D` contains `Matlab` routines to simulate the FDF model for calcium waves.
+
+The `videos` folder provides a sample movie of a simulation of a stochastic spiral calcium wave by the FDF model.
+
+---------------------------------------------------------------------------------
+# Ch5.DePitta
 
 This folder contains Python 2.7 and C++11 codes to reproduce simulations and figures of Chapter 4. The following software must be preliminarly installed in order to run the code:
 
