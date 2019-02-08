@@ -130,6 +130,7 @@ run(duration, report='text')
 ################################################################################
 # Analysis and plotting
 ################################################################################
+import sympy
 plt.style.use('figures.mplstyle')
 
 ### Spiking activity (w/ rate)
