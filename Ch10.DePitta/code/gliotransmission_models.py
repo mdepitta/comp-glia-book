@@ -15,7 +15,7 @@ from scipy import *
 import weave
 from weave import converters
 import sys, os
-base_dir = '/Ch10.DePitta/code'
+base_dir = '/home/maurizio/Ch10.DePitta'
 sys.path.append(os.path.join(os.path.expanduser('~'),base_dir))
 import pycustommodules.general_utils as gu
 import pycustommodules.solvers.solver_utils as su
@@ -284,9 +284,9 @@ def exocytosis_model(rate,twin,N_syn,
     twin  = np.asarray(twin,dtype=float)
 
     # Also convert make sure to recast N_eq in a way that is suitable for C
-    N_var = int(N_var)
+    N_var = np.intc(N_var)
     if not N_syn: N_syn = 0  # Dummy value of N_syn in the case of the mean-field model
-    N_syn = int(N_syn)
+    N_syn = np.intc(N_syn)
 
     if model=='spiking':
         # Create input_spikes
@@ -313,7 +313,7 @@ def exocytosis_model(rate,twin,N_syn,
                         os.path.join(os.path.expanduser('~'), base_dir + '/code/gliotransmission_models.cpp')]
         code = """
                // Version
-               double version = 0.0;
+               double version = 1.0;
     
                // Define astrocyte model
                release synapse(N_var,N_syn,N_spk,pars);
@@ -819,14 +819,14 @@ def last_point(pars,spikes,tfin,xval,yval,idx_,uval=None,gtr=False):
         idx += 1 # Make sure that indexes of synapses are 0
     idx = np.asarray(idx, dtype=int)
     x_last,y_last,dt = np.zeros(Nsyn),np.zeros(Nsyn),np.zeros(Nsyn)
-    if uval!=None:
+    if hasattr(uval,'__len__') or (uval!=None):
         u_last = np.zeros(Nsyn)
     i,j = 0,len(spikes)-1
     # Find the last instant of spike for each synapse
     while (i<Nsyn) and (j>=0):
         if dt[idx[j]]==0:
             dt[idx[j]] = spikes[j]
-            if uval!=None:
+            if hasattr(uval,'__len__') or (uval!=None):
                 u_last[idx[j]] = uval[j]
                 x_last[idx[j]] = xval[j]*(1-uval[j])
             else:
@@ -848,12 +848,12 @@ def last_point(pars,spikes,tfin,xval,yval,idx_,uval=None,gtr=False):
 
     if not gtr:
         y_last = usol(y_last, dt, pars['taui'])
-        if uval!=None:
+        if hasattr(uval,'__len__') or (uval!=None):
             u_last = usol(u_last, dt, pars['tauf'])
 
     # Recast last values in the order of ICs
     if not gtr:
-        if uval!=None:
+        if hasattr(uval,'__len__') or (uval!=None):
             LCs = (np.vstack((x_last, y_last, u_last))).flatten(order='F')
         else:
             LCs = (np.vstack((x_last,y_last))).flatten(order='F')
@@ -1067,7 +1067,7 @@ class gtrs(object):
             DT = 1e-3
 
             # First check that synapse_index is not out of range
-            synapse_index = np.asarray(synapse_index,dtype=int)
+            synapse_index = np.asarray(np.atleast_1d(synapse_index),dtype=int)
             # assert (synapse_index.min() >=0)&(synapse_index.max()<=self.stim['Nsyn']), "Synapse index out of range [0,N_syn]"
 
             # Basic handling of ICs (since ICs for the discrete compartments are handled differently in 'asn_spk'
